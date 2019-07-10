@@ -1,0 +1,37 @@
+globalstyle:
+  version: 1.x
+  header: true
+  css:
+    theme:
+      fonts/FontAwesome_5.0.6/css/fontawesome-all.min.css: {}
+      css/custom.css: {}
+      css/microrules.css: {}
+  js:
+    lib/lodash/lodash.min.js: {}
+    lib/jquery/dist/jquery.min.js: {}
+    lib/jquery/external/jquery.mobile-events.js: {}
+    lib/custom.js: {}
+
+tether:
+  js:
+    lib/tether/dist/js/tether.min.js: {}
+
+bootstrap:
+  version: 4
+  css:
+    theme:
+      css/bootstrap.css: {}
+  js:
+    lib/bootstrap4/dist/js/bootstrap.min.js: {}
+
+
+# font-awesome:
+#   remote: https://fortawesome.github.io/Font-Awesome/
+#   version: 4.5.0
+#   license:
+#     name: MIT
+#     url: https://fortawesome.github.io/Font-Awesome/license/
+#     gpl-compatible: true
+#   css:
+#     theme:
+#       https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css: { type: external, minified: true }
