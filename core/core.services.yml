@@ -7,7 +7,16 @@ parameters:
   twig.config:
     debug: false
     auto_reload: null
-    cache: true
+    # ---------- edit to enable/disable caching --------------
+    #
+    # 1. core/core.services.yml :10
+    # 2. sites/default/settings.local.php :75,101
+    # 3. sites/default/settings.php :783,784
+    #
+    # --------------------------------------------------------
+    # cache: true
+    cache: false
+    # --------------------------------------------------------
   renderer.config:
     required_cache_contexts: ['languages:language_interface', 'theme', 'user.permissions']
     auto_placeholder_conditions:

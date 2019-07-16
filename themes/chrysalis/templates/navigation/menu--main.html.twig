@@ -37,11 +37,11 @@
       <ul class="menu child dropdown-menu">
     {% endif %}
     {% for item in items %}
-	{% if item.below %}
-	  <li class="dropdown"><i class="glyphicon glyphicon-chevron-down"></i>     
-	{% else %}
-	  <li{{ item.attributes }}>
-	{% endif %}  
+      {% if item.below %}
+        <li class="dropdown"><i class="glyphicon glyphicon-chevron-down"></i>     
+      {% else %}
+        <li{{ item.attributes }}>
+      {% endif %}  
         {{ link(item.title, item.url) }}
         {% if item.below %}
           {{ menus.menu_links(item.below, attributes, menu_level + 1) }}

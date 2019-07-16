@@ -1,5 +1,7 @@
 @import url("mallory_font.css");
+
 /*@import url("../fonts/FontAwesome_5.0.6/css/fontawesome-all.min.css");*/
+
 
 /* ==================================================================================
    PAGE ELEMENTS & BOOTSTRAP OVERRIDES
@@ -42,6 +44,7 @@ footer {
 .paragraph>.paragraph__column {
     padding-bottom: 0;
 }
+
 
 /* ==================================================================================
    HEADINGS & TYPOGRAPHY
@@ -214,6 +217,26 @@ h2.section-subtitle {
     clear: both;
     border: none;
     background: none;
+}
+
+.ypm-sitemap-container {
+    margin: 2em 0 0 0;
+    padding: 2em 0;
+    background-color: #01356b;
+    color: white;
+}
+
+.ypm-search-container {
+    position: absolute;
+    right: 1em;
+    box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.25);
+    z-index: 2000;
+    background: white;
+    padding: 1em;
+}
+
+.ypm-search-container h2 {
+    font-size: 18px;
 }
 
 
@@ -495,6 +518,7 @@ h2.section-subtitle {
     margin-right: -1em;
 }
 
+
 /* ==================================================================================
    SLIDERS
    ================================================================================== */
@@ -512,6 +536,7 @@ h2.section-subtitle {
     width: 100%;
     height: auto;
 }
+
 
 /* ==================================================================================
    SOCIAL ICONS
@@ -589,6 +614,7 @@ li.social-icon-instagram:hover {
     transition: 0.5s all ease-in-out;
 }
 
+
 /* ==================================================================================
    MISC
    ================================================================================== */
@@ -599,6 +625,7 @@ li.social-icon-instagram:hover {
     -webkit-transform: translateY(-15px);
     transform: translateY(-15px);
 }
+
 
 /* ==================================================================================
    PRE-DEFINED WITH THEME

@@ -43,12 +43,32 @@
  * @see html.html.twig
  */
 #}
-<div id="header" class="section">
+<header id="header" role="banner" class="section">
 <div class="container-fluid">
  <div class="row">
-  <header role="banner" class="col-md-12">
-    {{ page.header }}
-  </header>
+    <div class="col-md-3">
+      {{ page.header_logo }}
+    </div>
+    <div class="col-md-9">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-8">
+            {{ page.header_primary_left }}
+          </div>
+          <div class="col-md-4">
+            {{ page.header_primary_right }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-8">
+            {{ page.header_secondary_left }}
+          </div>
+          <div class="col-md-4">
+            {{ page.header_secondary_right }}
+          </div>
+        </div>
+      </div>
+    </div>
  </div><!-- /.row -->
  <div class="row ypm-nav-container"> 
   <div class="col-md-3 ypm-nav-admin">
@@ -59,12 +79,14 @@
   </div>
  </div><!-- /.row -->
 </div> <!-- /.container -->
-</div> <!-- /#header -->
+</header> <!-- /#header -->
 
   <main role="main" class="section">
    <div class="container-fluid">
-    <div class="row ypm-slider-container">
-    </div><!-- /.row -->
+    <div class="row ypm-search-container">
+        {{ page.search }}
+    </div>
+    <div class="row ypm-slider-container"></div><!-- /.row -->
    </div> <!-- /.container -->
    <div class="container">
      <div class="row">	
@@ -79,8 +101,54 @@
     </div>{# /.layout-content #}
   </main>
 
-  {# {% if page.primary_footer %} #}
+
   <footer role="contentinfo" class="section">
+  <!-- Footer SITEMAP -->
+   {% if page.footer_sitemap_right or page.footer_sitemap_center or page.footer_sitemap_left %}
+   <div class="container-fluid ypm-sitemap-container">
+      <div class="container">
+        <div class="row ypm-sitemap">
+          <div class="col-md-4">
+            {% if page.footer_sitemap_left %}
+              {{ page.footer_sitemap_left }}
+            {% endif %}
+          </div>
+          <div class="col-md-4">
+            {% if page.footer_sitemap_center %}
+              {{ page.footer_sitemap_center }}
+            {% endif %}
+          </div>
+          <div class="col-md-4">
+            {% if page.footer_sitemap_right %}
+              {{ page.footer_sitemap_right }}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+   </div>
+   {% endif %}
+   <!-- Footer CTA -->
+   {% if page.footer_cta_right or page.footer_cta_center or page.footer_cta_left %}
+    <div class="container">
+        <div class="row ypm-sitemap">
+          <div class="col-md-4">
+            {% if page.footer_cta_left %}
+              {{ page.footer_cta_left }}
+            {% endif %}
+          </div>
+          <div class="col-md-4">
+            {% if page.footer_cta_center %}
+              {{ page.footer_cta_center }}
+            {% endif %}
+          </div>
+          <div class="col-md-4">
+            {% if page.footer_cta_right %}
+              {{ page.footer_cta_right }}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+   {% endif %}
    <div class="container">
       {% if page.social_menu %}
       <div class="row ypm-nav-social">
@@ -106,4 +174,3 @@
 	  </div><!-- /.container -->  
    </div><!-- /#contentheader --> 
   </footer>
-  {# {% endif %} #}

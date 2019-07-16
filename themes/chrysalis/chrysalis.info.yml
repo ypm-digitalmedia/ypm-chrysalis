@@ -9,6 +9,12 @@ libraries:
 
 regions:
   header: Header
+  header_logo: Header Logo
+  header_primary_left: Header Primary (Left)
+  header_primary_right: Header Primary (Right)
+  header_secondary_left: Header Secondary (Left)
+  header_secondary_right: Header Secondary (Right)
+  search: Search Container
   primary_menu: Primary Links
   secondary_menu: Secondary Links
   help: Help
@@ -18,9 +24,15 @@ regions:
   content: Content
   # sidebar_first: 'Sidebar first'
   # sidebar_second: 'Sidebar second'
+  footer_sitemap_left: Footer Sitemap (Left)
+  footer_sitemap_center: Footer Sitemap (Center)
+  footer_sitemap_right: Footer Sitemap (Right)
+  footer_cta_left: Footer Call-to-Action (Left)
+  footer_cta_center: Footer Call-to-Action (Center)
+  footer_cta_right: Footer Call-to-Action (Right)
   primary_footer: Primary Footer
   secondary_footer: Secondary Footer
-  social_menu: Social Media Links
+  #social_menu: Social Media Links
 
 # Information added by Drupal.org packaging script on 2016-07-08
 version: '0.0.1'
