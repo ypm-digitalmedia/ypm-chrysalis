@@ -220,7 +220,7 @@ h2.section-subtitle {
 }
 
 .ypm-sitemap-container {
-    margin: 2em 0 0 0;
+    margin: 2em 0 0.5em 0;
     padding: 2em 0;
     background-color: #01356b;
     color: white;
@@ -624,6 +624,10 @@ li.social-icon-instagram:hover {
     -moz-transform: translateY(-15px);
     -webkit-transform: translateY(-15px);
     transform: translateY(-15px);
+}
+
+.bs-site-alert {
+    display: block!important;
 }
 
 
