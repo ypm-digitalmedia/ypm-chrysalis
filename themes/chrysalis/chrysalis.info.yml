@@ -15,8 +15,8 @@ regions:
   header_secondary_left: Header Secondary (Left)
   header_secondary_right: Header Secondary (Right)
   search: Search Container
-  primary_menu: Primary Links
-  secondary_menu: Secondary Links
+  # primary_menu: Primary Links
+  # secondary_menu: Secondary Links
   help: Help
   page_top: 'Page top'
   page_bottom: 'Page bottom'

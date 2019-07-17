@@ -44,13 +44,13 @@
  */
 #}
 <header id="header" role="banner" class="section">
-<div class="container-fluid">
+<div class="container-fluid header-container">
  <div class="row">
     <div class="col-md-3">
       {{ page.header_logo }}
     </div>
     <div class="col-md-9">
-      <div class="container-fluid">
+      <div class="container-fluid ypm-nav-container">
         <div class="row">
           <div class="col-md-8">
             {{ page.header_primary_left }}
@@ -59,24 +59,16 @@
             {{ page.header_primary_right }}
           </div>
         </div>
-        <div class="row">
-          <div class="col-md-8">
+        <div class="row ypm-nav">
+          <div class="col-md-8 ypm-nav-main">
             {{ page.header_secondary_left }}
           </div>
-          <div class="col-md-4">
+          <div class="col-md-4 ypm-nav-special">
             {{ page.header_secondary_right }}
           </div>
         </div>
       </div>
     </div>
- </div><!-- /.row -->
- <div class="row ypm-nav-container"> 
-  <div class="col-md-3 ypm-nav-admin">
-  {{ page.secondary_menu }}
-  </div>
-  <div class="col-md-9 ypm-nav-main">
-  {{ page.primary_menu }}
-  </div>
  </div><!-- /.row -->
 </div> <!-- /.container -->
 </header> <!-- /#header -->

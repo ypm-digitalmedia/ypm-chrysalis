@@ -158,6 +158,31 @@ h2.section-subtitle {
    NAVIGATION
    ================================================================================== */
 
+#site-name {
+    font-size: 1.8em;
+    line-height: 1.1em;
+    font-family: "Mallory Medium";
+    text-transform: uppercase;
+    width: min-intrinsic;
+    width: -webkit-min-content;
+    width: -moz-min-content;
+    width: min-content;
+    display: table-caption;
+    display: -ms-grid;
+    -ms-grid-columns: min-content;
+    word-spacing: 40%;
+}
+
+#site-name:hover,
+#site-name:focus {
+    text-decoration: none;
+}
+
+.header-container {
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
 .ypm-nav-container {
     /* Main nav area */
     -o-box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
@@ -165,20 +190,25 @@ h2.section-subtitle {
     -webkit-box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
     box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
     background-color: cornflowerblue;
+    padding: 0 1em;
+    margin: 0;
+    color: white;
 }
+
+.ypm-nav {}
 
 .ypm-nav-main ul {
     text-align: right;
 }
 
-.ypm-nav-admin ul {
+.ypm-nav-special ul {
     list-style-type: none;
 }
 
-.ypm-nav-admin ul li {
+.ypm-nav-special ul li {
     list-style: none;
     display: inline-block;
-    padding-right: 1em;
+    padding-left: 1em;
 }
 
 .ypm-nav-footer {
@@ -227,6 +257,7 @@ h2.section-subtitle {
 }
 
 .ypm-search-container {
+    display: none;
     position: absolute;
     right: 1em;
     box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.25);
@@ -237,6 +268,37 @@ h2.section-subtitle {
 
 .ypm-search-container h2 {
     font-size: 18px;
+}
+
+#openSearchBox {
+    float: right;
+    cursor: pointer;
+}
+
+.museum-hours-current-day,
+.museum-hours-current-day li {
+    list-style-type: none;
+    text-align: center;
+}
+
+.office-hours-status,
+.office-hours-status.office-hours-status--open,
+.office-hours-status.office-hours-status--closed {
+    font-family: "Mallory MP Bold";
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+#block-hours-current-day-hours,
+#block-opensearchbox {
+    float: left;
+}
+
+.office-hours__item-label {
+    padding-right: 2em;
+    font-family: "Mallory MP Bold";
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 

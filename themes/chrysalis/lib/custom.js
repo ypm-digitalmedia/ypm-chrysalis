@@ -31,11 +31,16 @@ $(document).ready(function() {
         $(".ypm-search-container").slideUp();
     });
 
+    $("#openSearchBox").click(function() {
+        // $(".ypm-search-container").slideDown();
+        $(".ypm-search-container").slideToggle();
+    });
 
 
+    // hotfix for Adminimal Theme Toolbar
 
-
-
+    $("#toolbar-administration").css("font-family", "Open Sans");
+    $("#toolbar-administration *").css("font-family", "Open Sans");
 });
 
 // =================================== FADE ANIMATIONS - CURRENT =========================================
