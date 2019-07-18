@@ -19,34 +19,45 @@
  */
 #}
 
-<div class="collapse navbar-collapse" id="{{ menu_name }}-menu">
+<div id="{{ menu_name }}-menu">
 {% import _self as menus %}
 
 {#
   We call a macro which calls itself to render the full tree.
   @see http://twig.sensiolabs.org/doc/tags/macro.html
 #}
-
 {{ menus.menu_links(items, attributes, 0) }}
 
 {% macro menu_links(items, attributes, menu_level) %}
   {% import _self as menus %}
   {% if items %}
-    {% if menu_level == 0 %}
-      <ul class="nav navbar-nav ml-auto"> {# `ml-auto` class used to right-justify flexbox UL menu #}
-    {% else %}
-      <ul class="nav navbar-nav ml-auto"> {# `ml-auto` class used to right-justify flexbox UL menu #}
-    {% endif %}
+      <ul class="special-links">
     {% for item in items %}
-      <li{{ item.attributes }}>
-        {{ link(item.title, item.url) }}
-        {% if item.below %}
-          {{ menus.menu_links(item.below, attributes, menu_level + 1) }}
-        {% endif %}
-      </li>
+    {% if 'icke' in item.title %}
+      {% set title %}
+        <i class="fas fa-ticket-alt"></i>&nbsp;{{ item.title }}
+      {% endset %}
+      <li class="special-icon-tickets">{{ link(title, item.url ) }}</li>
+    {% elseif 'embe' in item.title %}
+      {% set title %}
+        <i class="fas fa-user"></i>&nbsp;{{ item.title }}
+      {% endset %}
+      <li class="special-icon-membership">{{ link(title, item.url ) }}</li>
+    {% elseif 'tore' in item.title %}
+      {% set title %}
+        <i class="fas fa-shopping-cart"></i>&nbsp;{{ item.title }}
+      {% endset %}
+      <li class="special-icon-store">{{ link(title, item.url ) }}</li>
+    {% else %}
+      {% set title %}
+        <i class="fas fa-star"></i>&nbsp;{{ item.title }}
+      {% endset %}
+      <li class="special-icon-other">{{ link(title, item.url ) }}</li>
+    {% endif %}
+      {# {{ link(item.title, item.url) }} #}
+    {# </li> #}
     {% endfor %}
     </ul>
   {% endif %}
 {% endmacro %}
-
 </div>

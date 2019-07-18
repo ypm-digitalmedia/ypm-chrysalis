@@ -9,9 +9,9 @@ parameters:
     auto_reload: null
     # ---------- edit to enable/disable caching --------------
     #
-    # 1. core/core.services.yml :10
+    # 1. core/core.services.yml :17
     # 2. sites/default/settings.local.php :75,101
-    # 3. sites/default/settings.php :783,784
+    # 3. sites/default/settings.php :790,791
     #
     # --------------------------------------------------------
     # cache: true

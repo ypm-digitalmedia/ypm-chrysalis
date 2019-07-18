@@ -171,6 +171,7 @@ h2.section-subtitle {
     display: -ms-grid;
     -ms-grid-columns: min-content;
     word-spacing: 40%;
+    padding-left: 1em;
 }
 
 #site-name:hover,
@@ -178,37 +179,67 @@ h2.section-subtitle {
     text-decoration: none;
 }
 
-.header-container {
-    padding-right: 0px;
-    padding-left: 0px;
-}
-
-.ypm-nav-container {
-    /* Main nav area */
-    -o-box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
-    -moz-box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
-    -webkit-box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
-    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
-    background-color: cornflowerblue;
-    padding: 0 1em;
-    margin: 0;
+.ypm-header-nav-top {
+    background-color: #01356b;
     color: white;
 }
 
-.ypm-nav {}
+.ypm-header-container {
+    /* -o-box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
+    -moz-box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
+    -webkit-box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25); */
+    /* padding: 0 1em; */
+    margin: 0;
+    /* color: white; */
+}
+
+.ypm-nav {
+    padding: 0;
+    background-color: white;
+}
+
+.ypm-nav-special {}
+
+.ypm-nav-main {}
+
+.ypm-nav-search {}
+
+.ypm-nav-main-menu {
+    padding-left: 0;
+    padding-right: 0;
+}
 
 .ypm-nav-main ul {
-    text-align: right;
+    /* text-align: right; */
 }
 
 .ypm-nav-special ul {
     list-style-type: none;
+    padding-left: 0;
+    margin-top: 1rem;
 }
 
 .ypm-nav-special ul li {
     list-style: none;
     display: inline-block;
-    padding-left: 1em;
+}
+
+.ypm-nav-special ul li a {
+    padding: 0.2em 1em;
+}
+
+.ypm-nav-special ul li a:link,
+.ypm-nav-special ul li a:visited {
+    color: white;
+    text-decoration: none;
+}
+
+.ypm-nav-special ul li a:hover,
+.ypm-nav-special ul li a:focus {
+    color: #01356b;
+    background-color: white;
+    text-decoration: none;
 }
 
 .ypm-nav-footer {
@@ -239,14 +270,38 @@ h2.section-subtitle {
     margin-left: 0.3em;
 }
 
-.ypm-nav-main-menu {}
+#main-menu ul li,
+.ypm-nav-special ul li {
+    font-family: "Mallory Bold";
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+#main-menu ul li a {
+    padding: 0.2em 1em;
+}
+
+#main-menu ul li a:link,
+#main-menu ul li a:visited {
+    color: black;
+    text-decoration: none;
+}
+
+#main-menu ul li a:hover,
+#main-menu ul li a:focus {
+    color: white;
+    text-decoration: none;
+    background-color: #01356b;
+}
+
+
+/* .navbar-header {
+    width: 100%;
+} */
 
 .navbar-toggle-plain {
-    color: white;
     float: right;
     clear: both;
-    border: none;
-    background: none;
 }
 
 .ypm-sitemap-container {
@@ -260,7 +315,14 @@ h2.section-subtitle {
     display: none;
     position: absolute;
     right: 1em;
-    box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.25);
+    /* -o-box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.25);
+    -webkit-box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.25);
+    -moz-box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.25);
+    box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.25); */
+    -o-box-shadow: -2px 0px 20px rgba(0, 0, 0, 0.4);
+    -webkit-box-shadow: -2px 0px 20px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: -2px 0px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: -2px 0px 20px rgba(0, 0, 0, 0.4);
     z-index: 2000;
     background: white;
     padding: 1em;
@@ -283,15 +345,22 @@ h2.section-subtitle {
 
 .office-hours-status,
 .office-hours-status.office-hours-status--open,
-.office-hours-status.office-hours-status--closed {
+.office-hours-status.office-hours-status--closed,
+.office-hours-status--open,
+.office-hours-status--closed {
     font-family: "Mallory MP Bold";
     font-weight: bold;
     text-transform: uppercase;
 }
 
-#block-hours-current-day-hours,
+#block-hours-current-day-hours {
+    float: left;
+}
+
 #block-opensearchbox {
     float: left;
+    padding-left: 20px;
+    font-size: 1.5em;
 }
 
 .office-hours__item-label {
