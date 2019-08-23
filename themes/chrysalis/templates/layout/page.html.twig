@@ -49,7 +49,7 @@
     <div class="col-md-3">
       {{ page.header_logo }}
     </div>
-    <div class="col-md-9">
+    <div class="col-md-9" id="topNavContainer">
       <div class="container-fluid ypm-header-container">
         <div class="row ypm-header-nav-top">
           <div class="col-md-8 ypm-nav-special">
@@ -82,10 +82,23 @@
    </div> <!-- /.container -->
    <div class="container">
      <div class="row">	
-        <a id="main-content" tabindex="-1"></a>{# link is in html.html.twig #}
-       {{ page.highlighted }}{# region--highlighted.html.twig #}
-       {{ page.breadcrumb }}{# region--breadcrumb.html.twig #}
-       {{ page.help }}
+       <div class="col-xs-12">
+          <a id="main-content" tabindex="-1"></a>{# link is in html.html.twig #}
+        </div>
+     <div class="row">	
+       <div class="col-xs-12">
+          {{ page.highlighted }}{# region--highlighted.html.twig #}
+       </div>
+     </div>
+     <div class="row">	
+       <div class="col-xs-12">
+          {{ page.breadcrumb }}{# region--breadcrumb.html.twig #}
+       </div>
+    </div>
+     <div class="row">	
+       <div class="col-xs-12">
+          {{ page.help }}
+       </div>
      </div><!-- /.row -->
    </div><!-- /container --> 
     <div class="content">

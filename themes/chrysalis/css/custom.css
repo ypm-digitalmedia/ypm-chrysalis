@@ -174,9 +174,17 @@ h2.section-subtitle {
     padding-left: 1em;
 }
 
-#site-name:hover,
-#site-name:focus {
+#site-name:link,
+#site-name:visited {
+    color: #01356b;
     text-decoration: none;
+}
+
+#site-name:hover,
+#site-name:focus,
+#site-name:active {
+    text-decoration: none;
+    color: #296dc0;
 }
 
 .ypm-header-nav-top {
@@ -295,9 +303,15 @@ h2.section-subtitle {
 }
 
 
-/* .navbar-header {
-    width: 100%;
+/* .content h2 {
+    text-align: center;
 } */
+
+@media only screen and (min-width: 768px) {
+    #topNavContainer {
+        padding-right: 0px;
+    }
+}
 
 .navbar-toggle-plain {
     float: right;
@@ -370,49 +384,63 @@ h2.section-subtitle {
     text-transform: uppercase;
 }
 
+.museum-hours-all-days {
+    list-style-type: none;
+    text-align: left;
+    padding-left: 0px;
+}
+
+.hours-container-all-days {
+    padding-left: 2em;
+}
+
 
 /* ==================================================================================
    BUTTONS
    ================================================================================== */
 
-.btn-peabody {
-    background-image: -webkit-linear-gradient(top, #63aaff 0, #01356b 100%);
-    background-image: -o-linear-gradient(top, #63aaff 0, #01356b 100%);
-    background-image: -webkit-gradient(linear, left top, left bottom, from(#dde6ee), to(#01356b));
-    background-image: linear-gradient(to bottom, #63aaff 0, #01356b 100%);
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#ff63aaff', endColorstr='#ff01356b', GradientType=0);
-    filter: progid: DXImageTransform.Microsoft.gradient(enabled=false);
-    background-repeat: repeat-x;
-    border-color: #01356b;
+.btn-peabody:link,
+.btn-peabody:visited,
+#search-block-form button,
+.search-form button {
+    background-color: #01356b!important;
     color: white!important;
-    /*color: rgb(51, 51, 51);*/
     -webkit-transition: 0.2s all ease-in;
-    transition: 0.2s background-image ease-in;
-    font-family: "Mallory Bold";
-    text-transform: uppercase;
+    transition: 0.2s all ease-in;
+    font-family: "Mallory Bold"!important;
+    text-transform: uppercase!important;
     cursor: pointer;
-    font-size: 14px!important;
+    border-radius: 0px!important;
+    font-size: 1em!important;
+    border: none!important;
 }
 
 .btn-peabody:hover,
 .btn-peabody:focus,
 .btn-peabody.focus,
+.open>.dropdown-toggle.btn-peabody,
+#search-block-form button:focus,
+#search-block-form button:hover,
+.search-form button:focus,
+.search-form button:hover {
+    color: black!important;
+    background-color: #fff!important;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    -webkit-transition: 0.2s all ease-in!important;
+    transition: 0.2s all ease-in!important;
+    border-radius: 0px!important;
+    cursor: pointer;
+    font-size: 1em!important;
+    border: none!important;
+    outline: none;
+}
+
 .btn-peabody:active,
 .btn-peabody.active,
-.open>.dropdown-toggle.btn-peabody {
-    color: white!important;
-    background-image: -webkit-linear-gradient(top, #dde6ee 0, #63aaff 100%);
-    background-image: -o-linear-gradient(top, #dde6ee 0, #63aaff 100%);
-    background-image: -webkit-gradient(linear, left top, left bottom, from(#dde6ee), to(#63aaff));
-    background-image: linear-gradient(to bottom, #dde6ee 0, #63aaff 100%);
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#ffdde6ee', endColorstr='#ff63aaff', GradientType=0);
-    filter: progid: DXImageTransform.Microsoft.gradient(enabled=false);
-    background-repeat: repeat-x;
-    border-color: #63aaff;
-    -webkit-transition: 0.2s all ease-in;
-    transition: 0.2s all ease-in;
-    cursor: pointer;
-    font-size: 14px!important;
+#search-block-form button:active,
+.search-form button:active {
+    background-color: #eee!important;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
 }
 
 
@@ -747,6 +775,138 @@ li.social-icon-instagram:hover {
 
 
 /* ==================================================================================
+   SITEMAP
+   ================================================================================== */
+
+.sitemap-menu a:link,
+.sitemap-menu a:visited {
+    color: white;
+}
+
+.sitemap-parent-menu {
+    padding-left: 0;
+}
+
+.sitemap-parent-item {
+    font-size: 1.5rem;
+    list-style-type: none;
+    text-transform: uppercase;
+    font-family: "Mallory Bold";
+}
+
+.sitemap-parent-item a:link .sitemap-parent-item a:visited {
+    color: white;
+    background-color: none;
+    text-decoration: none;
+    padding: 0 0.5em;
+}
+
+.sitemap-parent-item a:hover,
+.sitemap-parent-item a:focus,
+.sitemap-parent-item a:active {
+    color: #01356b;
+    background-color: white;
+    text-decoration: none;
+    padding: 0 0.25em;
+}
+
+.sitemap-child-menu {
+    margin-bottom: 1em;
+}
+
+.sitemap-child-item {
+    padding-left: 2em;
+    font-size: 14px;
+    list-style-type: none;
+    text-transform: uppercase;
+}
+
+.sitemap-child-item a:link,
+.sitemap-child-item a:visited {
+    color: white;
+    background-color: none;
+    text-decoration: none;
+    padding: 0 0.5em;
+}
+
+.sitemap-child-item a:active,
+.sitemap-child-item a:focus,
+.sitemap-child-item a:hover {
+    color: #01356b;
+    background-color: white;
+    text-decoration: none;
+    padding: 0 0.5em;
+}
+
+
+/* .sitemap-parent-item a {
+    font-family: "Mallory Bold"!important;
+} */
+
+.sitemap-child-item a {
+    font-family: "Mallory Medium"!important;
+}
+
+
+/* ==================================================================================
+   SEARCH
+   ================================================================================== */
+
+.search-result-title {
+    font-size: 1em!important;
+    border-top: 1px #ddd solid;
+    margin-bottom: 0.25em;
+}
+
+.search-result-link {
+    margin-bottom: 1em;
+}
+
+strong.hl {
+    background: rgba(245, 225, 128, 0.4);
+    font-style: italic;
+    font-family: "Mallory MP Medium"!important;
+    text-transform: none!important;
+}
+
+.snippet {
+    margin-bottom: 1.5em;
+}
+
+.result-small-url {
+    font-size: 0.8em;
+    font-family: "Mallory MP Medium";
+    margin-bottom: 5px;
+    font-style: italic;
+}
+
+.result-small-url a:link,
+.result-small-url a:visited {
+    text-decoration: none;
+    color: black;
+}
+
+.result-small-url a:active,
+.result-small-url a:hover,
+.result-small-url a:focus {
+    text-decoration: none;
+}
+
+.no-results {
+    margin: 1.5em 0;
+}
+
+details {
+    display: none;
+}
+
+.results-page-header {
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+
+/* ==================================================================================
    MISC
    ================================================================================== */
 
@@ -759,6 +919,64 @@ li.social-icon-instagram:hover {
 
 .bs-site-alert {
     display: block!important;
+}
+
+.google-map-embed {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.directions-link a:link,
+.directions-link a:visited {
+    color: white;
+    text-decoration: none;
+    font-family: "Mallory Medium"!important;
+    text-transform: uppercase;
+}
+
+.directions-link a:focus,
+.directions-link a:active,
+.directions-link a:hover {
+    color: #01356b;
+    background-color: white;
+    text-decoration: none;
+    padding: 0 0.5em;
+}
+
+.alert-dismissible .close {
+    padding: 0px;
+}
+
+
+/* ==================================================================================
+   ADMIN
+   ================================================================================== */
+
+.nav-item a {
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    background: #333;
+    color: #ddd;
+    padding: 0 1em;
+    border-top: 4px #ddd solid;
+    -o-transition: 0.3s all ease-out;
+    -moz-transition: 0.3s all ease-out;
+    -webkit-transition: 0.3s all ease-out;
+    transition: 0.3s all ease-out;
+    font-family: 'Open Sans';
+}
+
+.nav-item a:active,
+.nav-item a:hover,
+.nav-item a:focus {
+    background: #ddd;
+    border-top-color: #333;
+    padding-top: 0.5em;
+    color: #333;
+    -o-transition: 0.3s all ease-out;
+    -moz-transition: 0.3s all ease-out;
+    -webkit-transition: 0.3s all ease-out;
+    transition: 0.3s all ease-out;
 }
 
 

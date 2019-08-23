@@ -56,14 +56,32 @@
  * @see template_preprocess_search_result()
  */
 #}
+
+
 {{ title_prefix }}
-<h3{{ title_attributes }}>
+<h3 class="search-result-title" {{ title_attributes }}>
   <a href="{{ url }}">{{ title }}</a>
 </h3>
+  <p class="result-small-url"><a href="{{ url }} " title="View page: {{ title }}">{{ url }}</a></p>
 {{ title_suffix }}
 {% if snippet %}
+  {# <p{{ content_attributes }}>{{ snippet }}</p> #}
+  <p class="snippet">{{ snippet }}</p>
+  {# <p><a href="{{ url }}" class="btn btn-peabody search-result-link" title="View page: {{ title }}">View Page</a></p> #}
+{% endif %}
+
+{#
+  {% if info %}
+  <p>{{ info }}</p> 
+  {% endif %}
+#}
+
+
+
+{# {% if result.node.body.0.summary %}
+  <p{{ content_attributes }}>{{ summary|length > 200 ? summary|slice(0, 250) ~ '...' : summary }}</p>
+  <div>{{ result.node.created }}</div>
+{% else %}
   <p{{ content_attributes }}>{{ snippet }}</p>
-{% endif %}
-{% if info %}
-  <p>{{ info }}</p>
-{% endif %}
+  <div>{{ result.node.created }}</div>
+{% endif %} #}

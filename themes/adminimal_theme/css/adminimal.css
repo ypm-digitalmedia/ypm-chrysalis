@@ -875,3 +875,8 @@ input[type=radio]:disabled:hover {
     box-sizing: border-box;
     font-family: "Open Sans"!important;
 }
+
+a.tabledrag-handle .handle {
+    width: 28px!important;
+    height: 28px!important;
+}

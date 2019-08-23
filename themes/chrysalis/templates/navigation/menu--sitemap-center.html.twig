@@ -1,0 +1,144 @@
+{#
+/**
+ * @file
+ * Theme override to display a menu.
+ *
+ * Available variables:
+ * - menu_name: The machine name of the menu.
+ * - items: A nested list of menu items. Each menu item contains:
+ *   - attributes: HTML attributes for the menu item.
+ *   - below: The menu item child items.
+ *   - title: The menu link title.
+ *   - url: The menu link url, instance of \Drupal\Core\Url
+ *   - localized_options: Menu link localized options.
+ *   - is_expanded: TRUE if the link has visible children within the current
+ *     menu tree.
+ *   - is_collapsed: TRUE if the link has children within the current menu tree
+ *     that are not currently visible.
+ *   - in_active_trail: TRUE if the link is in the active trail.
+ */
+#}
+
+<div class="sitemap-menu" id="{{ menu_name }}-menu">
+{% import _self as menus %}
+
+{#
+  We call a macro which calls itself to render the full tree.
+  @see http://twig.sensiolabs.org/doc/tags/macro.html
+#}
+
+
+
+{{ menus.menu_links(items, attributes, 0) }}
+ 
+ {% macro menu_links(items, attributes, menu_level) %}
+   {% import _self as menus %}
+   {% if items %}
+     {% if menu_level == 0 %}
+       <ul{{ attributes.addClass('sitemap-parent-menu') }}>
+         {% else %}
+       <ul{{ attributes.addClass('sitemap-child-menu') }}>
+    {% endif %}
+     {% for item in items %}
+       {%
+         set classes = [
+           menu_level == 0 ? 'sitemap-parent-item' : 'sitemap-child-item',
+            'sitemap-item--level-' ~ (menu_level + 1)
+         ]
+       %}
+
+
+          {% if 'isit' in item.title and menu_level == 0 %}
+            {% set title %}
+              <i class="fas fa-landmark"></i>&nbsp;{{ item.title }}
+            {% endset %}
+          {% elseif 'xplo' in item.title and menu_level == 0 %}
+            {% set title %}
+              <i class="fas fa-search"></i>&nbsp;{{ item.title }}
+            {% endset %}
+          {% elseif 'vent' in item.title and menu_level == 0 %}
+            {% set title %}
+              <i class="far fa-calendar-alt"></i>&nbsp;{{ item.title }}
+            {% endset %}
+          {% elseif 'bout' in item.title and menu_level == 0 %}
+            {% set title %}
+              <i class="fas fa-question-circle"></i>&nbsp;{{ item.title }}
+            {% endset %}
+          {% elseif 'duca' in item.title and menu_level == 0 %}
+            {% set title %}
+              <i class="fas fa-graduation-cap"></i>&nbsp;{{ item.title }}
+            {% endset %}
+          {% elseif 'uppo' in item.title and menu_level == 0 %}
+            {% set title %}
+              <i class="fas fa-hands-helping"></i>&nbsp;{{ item.title }}
+            {% endset %}
+          {% elseif 'ours' in item.title and menu_level == 0 %}
+            {% set title %}
+              <i class="far fa-clock"></i>&nbsp;{{ item.title }}
+            {% endset %}
+
+          {% else %}
+            {% set title %}
+              {{ item.title }}
+            {% endset %}
+
+          {% endif %}
+
+       <li{{ item.attributes.addClass(classes) }}>
+         {{ link(title, item.url) }}
+         {% if item.below %}
+           {{ menus.menu_links(item.below, attributes, menu_level + 1) }}
+         {% endif %}
+       </li>
+     {% endfor %}
+     </ul>
+   {% endif %}
+ {% endmacro %}
+
+</div>
+
+
+
+
+{# OLD VERSION #}
+
+{# {{ menus.menu_links(items, attributes, 0) }}
+
+{% macro menu_links(items, attributes, menu_level) %}
+  {% import _self as menus %}
+  {% if items %}
+  
+    {% if menu_level == 0 %}
+      <ul class="nav navbar-nav sitemap-parent-menu"> 
+    {% else %}
+      <ul class="nav navbar-nav sitemap-child-menu">
+    {% endif %}
+    {% for item in items %}
+      {% if menu_level == 0 %}
+
+          {% if 'isit' in item.title %}
+          {% set title %}
+            <i class="fas fa-landmark"></i>&nbsp;{{ item.title }}
+          {% endset %}
+           <li class="sitemap-parent-item">{{ link(title, item.url ) }}</li>
+          {% endif %}
+
+          {{ link(item.title, item.url) }}
+          {% if item.below %}
+            <li class="sitemap-child-item">
+              {{ menus.menu_links(item.below, attributes, menu_level + 1) }}
+            </li>
+          {% endif %}
+
+      {% else %}
+
+        <li class="sitemap-child-item">
+          {{ link(item.title, item.url) }}
+        </li>
+
+      {% endif %}
+
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %} #}

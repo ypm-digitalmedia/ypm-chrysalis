@@ -110,7 +110,7 @@ class SearchController extends ControllerBase {
 
     if (count($results)) {
       $build['search_results_title'] = [
-        '#markup' => '<h2>' . $this->t('Search results') . '</h2>',
+        '#markup' => '<h2 class="results-page-header">' . $this->t('Search results') . '</h2>',
       ];
     }
 
@@ -118,7 +118,8 @@ class SearchController extends ControllerBase {
       '#theme' => ['item_list__search_results__' . $plugin->getPluginId(), 'item_list__search_results'],
       '#items' => $results,
       '#empty' => [
-        '#markup' => '<h3>' . $this->t('Your search yielded no results.') . '</h3>',
+        // '#markup' => '<h3>' . $this->t('Your search yielded no results.') . '</h3>',
+        '#markup' => '<p class="no-results">' . $this->t('Your search yielded no results.') . '</p>',
       ],
       '#list_type' => 'ol',
       '#context' => [

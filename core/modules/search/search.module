@@ -718,10 +718,12 @@ function search_excerpt($keys, $text, $langcode = NULL) {
 
         // Locate a space before and after this match, leaving about 60
         // characters of context on each end.
-        $before = strpos(' ' . $text, ' ', max(0, $found_position - 61));
+
+        // AM EDIT - changed from 60 -> 160 (more context)
+        $before = strpos(' ' . $text, ' ', max(0, $found_position - 161));
         if ($before !== FALSE && $before <= $found_position) {
           if ($text_length > $found_position + 60) {
-            $after = strrpos(substr($text, 0, $found_position + 60), ' ', $found_position);
+            $after = strrpos(substr($text, 0, $found_position + 160), ' ', $found_position);
           }
           else {
             $after = $text_length;
@@ -794,7 +796,7 @@ function search_excerpt($keys, $text, $langcode = NULL) {
 
   // Highlight keywords. Must be done at once to prevent conflicts ('strong'
   // and '<strong>').
-  $text = trim(preg_replace('/' . $preceded_by_boundary . '(?:' . implode('|', $keys) . ')' . $followed_by_boundary . '/iu', '<strong>\0</strong>', ' ' . $text . ' '));
+  $text = trim(preg_replace('/' . $preceded_by_boundary . '(?:' . implode('|', $keys) . ')' . $followed_by_boundary . '/iu', '<strong class="hl">\0</strong>', ' ' . $text . ' '));
   return [
     '#markup' => $text,
     '#allowed_tags' => ['strong'],
