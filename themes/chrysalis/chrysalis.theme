@@ -5,13 +5,17 @@
  * Functions to support theming in the beginning theme.
  */
 
- 
+use Drupal\node\NodeInterface;
+
 /**
- * Implements hook_preprocess_HOOK() for page templates.
+ * Implements hook_preprocess_HOOK() for HTML document templates.
  */
+
 function chrysalis_preprocess_page(&$variables)
 {
+    // ORIGINAL CODE
     // Add information about the number of sidebars.
+    /*
     if (!empty($variables['page']['sidebar_first']) && !empty($variables['page']['sidebar_second'])) {
         $variables['contentwidth'] = 'col-md-5 col-md-push-4';
         $variables['sidebarfw'] = 'col-md-4 col-md-pull-5';
@@ -25,6 +29,11 @@ function chrysalis_preprocess_page(&$variables)
     } else {
         $variables['contentwidth'] = 'col-md-12';
     }
+    */
+
+        if (($node = \Drupal::routeMatch()->getParameter('node_preview')) && $node instanceof NodeInterface) {
+          $variables['node_type'] = $node->getType();
+        }
 
 }
 
@@ -58,3 +67,17 @@ function chrysalis_preprocess_paragraph(&$variables) {
   // Drupal 8.3.x+
   $variables['#cache']['contexts'][] = 'url.path.is_front'; 
 }
+
+// function chrysalis_preprocess_views_view_list(&$variables) {
+//     $view = $variables['view'];
+//     $id = $view->storage->id();
+//     $rows = $variables['rows'];
+//     foreach ($rows as $rowId => $row) {
+//         foreach ($view->field as $fieldId => $field) {
+//             $field_output = $view->style_plugin->getFieldValue($rowId, $fieldId);
+//             print_r($view->field[$fieldId]->label());
+//             print_r($field_output);
+            
+//             }
+//         }
+//     }

@@ -88,9 +88,14 @@
                 {% if content.field_page_title %}
                 {{ content.field_page_title }}
                 {% else %}
-                {{ node.label }}
+                {{ node.title }}
                 {% endif %}
             </h1>
+            {% if content.field_page_subtitle %}
+                <h2 class="page-subtitle">
+                {{ content.field_page_subtitle }}
+                </h2>
+            {% endif %}
         </div> <!-- /.col -->
     </div><!-- /.row -->
 </div> <!-- /.container -->
@@ -103,19 +108,12 @@
         <div class="col-md-12">
             <article{{ attributes }}>
               <div{{ content_attributes }}>
-                  
+                
+                {% if content.field_paragraphs_content %}
                 {{ content.field_paragraphs_content }}
-                  
-                  {#
-                  
-                  {% for key,paragraph in content.field_paragraphs_content if key|first != '#' %}
-                    
-                      <p>{{paragraph.field_type}}</p>
-                    
-                  {% endfor %}
-                  
-                      #}
-                      
+                {% else %}
+                {{ content }}
+                {% endif %}
               </div>
             </article>
         </div> <!-- /.col -->

@@ -24,6 +24,9 @@
             "You can read more about this composer repository at:",
             "https://www.drupal.org/node/2718229"
         ],
+        "drupal-libraries": {
+            "datetimepicker": "https://github.com/xdan/datetimepicker/archive/2.5.20.zip"
+        },
         "merge-plugin": {
             "include": [
                 "core/composer.json"
@@ -57,10 +60,8 @@
         "phpcs": "phpcs --standard=core/phpcs.xml.dist --runtime-set installed_paths $($COMPOSER_BINARY config vendor-dir)/drupal/coder/coder_sniffer --",
         "phpcbf": "phpcbf --standard=core/phpcs.xml.dist --runtime-set installed_paths $($COMPOSER_BINARY config vendor-dir)/drupal/coder/coder_sniffer --"
     },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://packages.drupal.org/8"
-        }
-    ]
+    "repositories": [{
+        "type": "composer",
+        "url": "https://packages.drupal.org/8"
+    }]
 }

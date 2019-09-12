@@ -8,11 +8,17 @@ $(document).ready(function() {
 
     $(".box-item").each(function() {
         var card = $(this).attr("id");
-        fliplocks[card] = false;
+        if ($(this).hasClass("noflip")) {
+            fliplocks[card] = true;
+        } else {
+            fliplocks[card] = false;
+        }
     });
 
     $(".box-item").mouseover(function() {
-        fadeToBack($(this));
+        if ($(this).hasClass('noflip')) {} else {
+            fadeToBack($(this));
+        }
     });
 
 

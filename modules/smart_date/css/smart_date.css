@@ -1,0 +1,48 @@
+/**
+ * @file
+ * Styles for TimeStamp Ranges fields.
+ *
+ */
+.field--type-smartdate .form-item,
+.field--type-smartdate tr.odd .form-item,
+.field--type-smartdate tr.even .form-item {
+  margin: 0.4em 0;
+}
+
+.field--type-smartdate h4.label {
+  float: left;
+  margin-right: 1em;
+  width: 5em;
+  text-align: right;
+  padding-top: 0.8em;
+}
+
+.field--type-smartdate .allday {
+  margin: 0 0.5em 0 6em;
+}
+
+.field--type-smartdate .allday-label {
+  float: left;
+  margin: 0.75em 2.75em 0.75em 0;
+}
+
+.field--type-smartdate .form-type-select,
+.field--type-smartdate tr.odd .form-type-select,
+.field--type-smartdate tr.even .form-type-select {
+  margin: 0.6em 0;
+}
+
+.field--type-smartdate .form-type-select label {
+  float: left;
+  margin-right: 0.5em;
+  padding-top: 0.25em;
+}
+
+.field--type-smartdate tr.odd .form-type-select label,
+.field--type-smartdate tr.even .form-type-select label {
+  padding-top: 0.6em;
+}
+
+.field--type-smartdate .form-type-select .form-select {
+  float: left;
+}

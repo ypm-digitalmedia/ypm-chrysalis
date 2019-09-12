@@ -1,0 +1,114 @@
+{#
+/**
+ * @file
+ * Theme override to display all the fields in a row.
+ *
+ * Available variables:
+ * - view: The view in use.
+ * - fields: A list of fields, each one contains:
+ *   - content: The output of the field.
+ *   - raw: The raw data for the field, if it exists. This is NOT output safe.
+ *   - class: The safe class ID to use.
+ *   - handler: The Views field handler controlling this field.
+ *   - inline: Whether or not the field should be inline.
+ *   - wrapper_element: An HTML element for a wrapper.
+ *   - wrapper_attributes: List of attributes for wrapper element.
+ *   - separator: An optional separator that may appear before a field.
+ *   - label: The field's label text.
+ *   - label_element: An HTML element for a label wrapper.
+ *   - label_attributes: List of attributes for label wrapper.
+ *   - label_suffix: Colon after the label.
+ *   - element_type: An HTML element for the field content.
+ *   - element_attributes: List of attributes for HTML element for field content.
+ *   - has_label_colon: A boolean indicating whether to display a colon after
+ *     the label.
+ *   - element_type: An HTML element for the field content.
+ *   - element_attributes: List of attributes for HTML element for field content.
+ * - row: The raw result from the query, with all data it fetched.
+ *
+ * @see template_preprocess_views_view_fields()
+ */
+#}
+
+{# {% for field in fields -%}
+  {{ field.separator }}
+  {%- if field.wrapper_element -%}
+    <{{ field.wrapper_element }}{{ field.wrapper_attributes }}>
+  {%- endif %}
+  {%- if field.label -%}
+    {%- if field.label_element -%}
+      <{{ field.label_element }}{{ field.label_attributes }}>{{ field.label }}{{ field.label_suffix }}</{{ field.label_element }}>
+    {%- else -%}
+      {{ field.label }}{{ field.label_suffix }}
+    {%- endif %}
+  {%- endif %}
+  {%- if field.element_type -%}
+    <{{ field.element_type }}{{ field.element_attributes }}>{{ field.content }}</{{ field.element_type }}>
+  {%- else -%}
+      {{ field.content }}
+  {%- endif %}
+  {%- if field.wrapper_element -%}
+    </{{ field.wrapper_element }}>
+  {%- endif %}
+{%- endfor %} #}
+
+{# CONTENT FOR INDIVIDUAL VIEW ROW -- OVERRIDE #}
+
+{# if card image, use 3-9 grid.  otherwise, delete and use full row #}
+{% if fields.field_select_card %}
+  <div class="col-xs-3">
+    {{ fields.field_select_card.content }}
+  </div>
+  <div class="col-xs-9 view-event-content">
+{% else %}
+  <div class="col-xs-12 view-event-content">
+{% endif %}
+
+
+  {% if fields.field_datetime_2 %}
+    <span class="item-upcoming-event-time"><i class="far fa-clock"></i> {{ fields.field_datetime_2.content }}</span>
+  {% endif %}
+  
+  {% if fields.title %}
+    <h4 class="item-upcoming-event-title">{{ fields.title.content }}</h4>
+  {% endif %}
+
+  {% if fields.field_paragraphs_content %}
+    <p class="item-upcoming-event-snippet">
+      {{ fields.field_paragraphs_content.content }}
+      <span class="item-upcoming-event-link">{{ fields.view_node.content }}</a>
+    </p>
+  {% endif %}
+
+
+  {% if fields.field_signup_button %}
+    <p class="item-upcoming-event-signup">
+      {{ fields.field_signup_button.content }}
+    </p>
+  {% endif %}
+
+  {% if fields.field_event_type %}
+    <p class="item-upcoming-event-signup">
+      <strong>Event Type:</strong> {{ fields.field_event_type.content }}
+    </p>
+  {% endif %}
+
+  {% if fields.field_admission_type %}
+    <p class="item-upcoming-event-signup">
+      <strong>Admission Type:</strong> {{ fields.field_admission_type.content }}
+    </p>
+  {% endif %}
+
+  {% if fields.field_talk_type %}
+    <p class="item-upcoming-event-signup">
+      <strong>Talk Type:</strong> {{ fields.field_talk_type.content }}
+    </p>
+  {% endif %}
+
+  {% if fields.field_tour_type %}
+    <p class="item-upcoming-event-signup">
+      <strong>Tour Type:</strong> {{ fields.field_tour_type.content }}
+    </p>
+  {% endif %}
+
+</div>

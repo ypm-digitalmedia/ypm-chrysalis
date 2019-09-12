@@ -14,5 +14,10 @@
  * @see template_preprocess_views_view_grouping()
  */
 #}
+
+{% if grouping_level == 0 %}
+<h2 class="grouping-primary">{{ title }}</h2>
+{% else %}
 {{ title }}
+{% endif %}
 {{ content }}

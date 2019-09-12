@@ -880,3 +880,26 @@ a.tabledrag-handle .handle {
     width: 28px!important;
     height: 28px!important;
 }
+
+.breadcrumb {
+    background-color: white!important;
+    background: none!important;
+}
+
+.js-form-type-single-date-time,
+.form-type-single-date-time {
+    display: table-cell;
+    padding-right: 2em;
+}
+
+.fiu-add-element .form-type-managed-file--advanced label {
+    height: 100%;
+}
+
+th.field-label h4.label {
+    width: auto!important;
+}
+
+.field--widget-smartdate-default fieldset:not(.fieldgroup) {
+    padding: 0!important;
+}

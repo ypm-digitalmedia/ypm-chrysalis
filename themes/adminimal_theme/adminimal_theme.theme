@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Core\Template\Attribute;
 
 /**
@@ -18,6 +19,11 @@ function adminimal_theme_preprocess_html(&$variables) {
   }
   else {
     $variables['attributes']['class'][] = 'adminimal';
+  }
+
+  // If on an individual node page, add the node type to body classes.
+  if (($node = \Drupal::routeMatch()->getParameter('node_preview')) && $node instanceof NodeInterface) {
+    $variables['node_type'] = $node->getType();
   }
 
   // Add library with custom CSS.
