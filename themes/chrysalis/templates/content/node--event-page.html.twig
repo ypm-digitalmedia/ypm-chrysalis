@@ -117,7 +117,7 @@
         <div class="col-md-12">
             <h3 class="date-time">
                 {% if content.field_datetime %}
-                <span class="date-time-icon"><i class="far fa-calendar-alt"></i></span>
+                {# <span class="date-time-icon"><i class="far fa-calendar-alt"></i></span> #}
                 <span class="date-time-content">{{ content.field_datetime }}</span>
                 {% endif %}
             </h3>
@@ -134,13 +134,12 @@
         <div class="col-md-12">
             <p>
                 <ul class="event-page-meta-list">
-                    {% if content.field_event_type == "Talk" %}
-                        <li>{{ content.field_event_type }} | {{ content.field_talk_type }} | {{ content.field_admission_type }}</li>
-                    {% elseif content.field_event_type == "Tour" %}
-                        <li>{{ content.field_event_type }} | {{ content.field_tour_type }} | {{ content.field_admission_type }}</li>
-                    {% else %}
-                        <li>{{ content.field_event_type }} | {{ content.field_admission_type }}</li>
-                    {% endif %}
+                
+                    <li>{{ content.field_event_type }}</li>
+                    <li>{{ content.field_talk_type }}</li>
+                    <li>{{ content.field_tour_type }}</li>
+                    <li>{{ content.field_admission_type }}</li>
+
                 </ul>
             </p>
         </div>

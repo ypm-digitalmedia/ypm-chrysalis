@@ -55,60 +55,71 @@
 {# CONTENT FOR INDIVIDUAL VIEW ROW -- OVERRIDE #}
 
 {# if card image, use 3-9 grid.  otherwise, delete and use full row #}
-{% if fields.field_select_card %}
-  <div class="col-xs-3">
+{% if row._entity.field_select_card.value %}
+  <div class="col-sm-12 col-md-4 col-lg-3">
     {{ fields.field_select_card.content }}
   </div>
-  <div class="col-xs-9 view-event-content">
+  <div class="col-sm-12 col-md-8 col-lg-9 view-event-content">
 {% else %}
   <div class="col-xs-12 view-event-content">
 {% endif %}
 
 
-  {% if fields.field_datetime_2 %}
-    <span class="item-upcoming-event-time"><i class="far fa-clock"></i> {{ fields.field_datetime_2.content }}</span>
-  {% endif %}
+  {# {% if row._entity.field_datetime_2.value %} #}
+    <span class="item-upcoming-event-time"><strong><i class="far fa-clock"></i> {{ fields.field_datetime_2.content }}</strong></span>
+  {# {% endif %} #}
   
-  {% if fields.title %}
+  {% if row._entity.field_event_type.value %}
+    <p class="item-upcoming-event-type">
+      <strong>{{ fields.field_event_type.content }}</strong>
+    </p>
+  {% endif %}
+
+  {% if row._entity.field_page_title.value %}
+    <h4 class="item-upcoming-event-title">{{ fields.field_page_title.content }}</h4>
+  {% else %}
     <h4 class="item-upcoming-event-title">{{ fields.title.content }}</h4>
   {% endif %}
 
-  {% if fields.field_paragraphs_content %}
+  {% if row._entity.field_talk_type.value %}
+    <p class="item-upcoming-event-talk-type">
+      <strong>{{ fields.field_talk_type.content }}</strong><br />
+      with {{ fields.field_speaker_name.content }}
+    </p>
+  {% elseif row._entity.field_tour_type.value %}
+    <p class="item-upcoming-event-talk-type">
+      <strong>{{ fields.field_tour_type.content }}</strong>
+    </p>
+  {% endif %}
+
+  {% if row._entity.field_paragraphs_content.value %}
     <p class="item-upcoming-event-snippet">
       {{ fields.field_paragraphs_content.content }}
-      <span class="item-upcoming-event-link">{{ fields.view_node.content }}</a>
     </p>
   {% endif %}
 
+  <p><span class="item-upcoming-event-link">{{ fields.view_node.content }}</span></p>
 
-  {% if fields.field_signup_button %}
+  {% if fields.field_signup_button.content %}
     <p class="item-upcoming-event-signup">
-      {{ fields.field_signup_button.content }}
+      <span>{{ fields.field_signup_button.content }}</span>
+      {% if fields.field_admission_type %}
+        <span class="item-upcoming-event-admission-type">
+          &nbsp;<i class="fas fa-dollar-sign"></i>
+          {{ fields.field_admission_type.content }}
+        </span>
+      {% endif %}
     </p>
   {% endif %}
 
-  {% if fields.field_event_type %}
-    <p class="item-upcoming-event-signup">
-      <strong>Event Type:</strong> {{ fields.field_event_type.content }}
-    </p>
-  {% endif %}
 
-  {% if fields.field_admission_type %}
-    <p class="item-upcoming-event-signup">
-      <strong>Admission Type:</strong> {{ fields.field_admission_type.content }}
-    </p>
-  {% endif %}
 
-  {% if fields.field_talk_type %}
-    <p class="item-upcoming-event-signup">
-      <strong>Talk Type:</strong> {{ fields.field_talk_type.content }}
-    </p>
-  {% endif %}
 
+{#
   {% if fields.field_tour_type %}
-    <p class="item-upcoming-event-signup">
+    <p class="item-upcoming-event-tour-type">
       <strong>Tour Type:</strong> {{ fields.field_tour_type.content }}
     </p>
-  {% endif %}
+  {% endif %} #}
 
 </div>

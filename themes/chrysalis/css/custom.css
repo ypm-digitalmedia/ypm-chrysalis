@@ -1076,12 +1076,13 @@ details {
     -webkit-font-smoothing: antialiased;
 }
 
-.item-list-upcoming-day h3::before,
+
+/* .item-list-upcoming-day h3::before,
 .item-list-upcoming-day-title::before {
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     content: "\f073";
-}
+} */
 
 .item-upcoming-event {
     padding-left: 1em!important;
@@ -1108,6 +1109,10 @@ details {
     color: white;
     padding: 0.5em;
     float: right;
+}
+
+.item-upcoming-event-time strong {
+    color: white;
 }
 
 .date-time {
@@ -1156,3 +1161,20 @@ details {
     list-style: disc;
     list-style-type: disc;
 }
+
+.item-upcoming-event-type {
+    margin-bottom: 0;
+}
+
+.item-upcoming-event-snippet {
+    border-left: 8px #01356b solid;
+    padding-left: 1em;
+    /* margin-left: 1em; */
+}
+
+
+/* .item-upcoming-event-link a::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f073";
+} */
