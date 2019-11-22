@@ -87,15 +87,11 @@
 {% if content.field_front_image_alignment %}
 {% set frontImageAlignment = content.field_front_image_alignment['#items'].getString() %}
 {% else %}
-{% set frontImageAlignment = 'center' %}
+{% set frontImageAlignment = 'right' %}
 {% endif %}
 
 {# FRONT IMAGE #}
 {% set frontImage = file_url(content.field_front_image|field_target_entity.uri.value) %}
-
-
-    {# {{ content.field_front_image }} #}
-
 
 {# <div class="col-xs-12"> #}
     <div class="box-item noflip" id="card_{{ node.id }}_{{ seed }}">

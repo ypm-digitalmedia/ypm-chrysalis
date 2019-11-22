@@ -1021,6 +1021,10 @@ details {
     transition: 0.3s all ease-out;
 }
 
+.node-preview-container {
+    position: initial!important;
+}
+
 
 /* ==================================================================================
    PRE-DEFINED WITH THEME
@@ -1076,13 +1080,12 @@ details {
     -webkit-font-smoothing: antialiased;
 }
 
-
-/* .item-list-upcoming-day h3::before,
+.item-list-upcoming-day h3::before,
 .item-list-upcoming-day-title::before {
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     content: "\f073";
-} */
+}
 
 .item-upcoming-event {
     padding-left: 1em!important;
@@ -1178,3 +1181,23 @@ details {
     font-weight: 900;
     content: "\f073";
 } */
+
+
+/* ==================================================================================
+   MEDIA QUERIES
+   ================================================================================== */
+
+@media only screen and (max-width: 600px) {
+    /* MOBILE STYLES - HEADINGS & SUBHEADINGS */
+    /* FRONT OF CARDS */
+    .exhibit-heading {
+        font-size: 1.5em;
+    }
+    .exhibit-subheading {
+        font-size: 0.95em;
+    }
+    /* BACK OF CARDS */
+    .back-content .button-row {
+        padding-top: 0;
+    }
+}

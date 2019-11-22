@@ -144,7 +144,7 @@
                     {{ content.body.0 }}
 
                     {% if content.field_back_date_line %}
-                        <p>{{ content.field_back_date_line.0 }}</p>
+                        <p><i class="far fa-clock"></i> {{ content.field_back_date_line.0 }}</p>
                     {% endif %}  
                     {% if content.field_back_button %}
                         <p class="button-row"><a data-link-parent="card_evex_{{ node.id }}_{{ seed }}" class="btn btn-peabody back-link" href="{{ node.field_back_button[0].url }}" role="button" title="More info: {{ node.label }}" aria-label="More info: {{ node.label }}">{{ node.field_back_button[0].title }}</a></p>

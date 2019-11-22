@@ -857,6 +857,10 @@ input[type=radio]:disabled:hover {
     color: #fff;
 }
 
+.node-preview-container {
+    position: initial!important;
+}
+
 .content-header .page-title .field--name-title {
     display: block;
     margin-top: 1.2rem;
@@ -903,3 +907,27 @@ th.field-label h4.label {
 .field--widget-smartdate-default fieldset:not(.fieldgroup) {
     padding: 0!important;
 }
+
+
+/* phone number in admin form  - custom AM */
+
+.fieldset-wrapper-inline .form-wrapper {
+    display: inline-block;
+}
+
+.fieldset-wrapper-nolabels .form-wrapper .form-item label {
+    display: none!important;
+}
+
+td.views-field-field-photo a img,
+td.views-field-field-photo img {
+    max-width: 100px!important;
+    max-height: 100px!important;
+    border-top-left-radius: 50%;
+    border-top-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50%;
+}
+
+
+/* --------------------------------------------------------------- */
