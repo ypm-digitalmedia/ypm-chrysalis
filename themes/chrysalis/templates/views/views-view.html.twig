@@ -41,9 +41,11 @@
   {{ title_suffix }}
 
   {% if header %}
-    <header>
+    {# <header> #}
+    <div role="header">
       {{ header }}
-    </header>
+    </div>
+    {# </header> #}
   {% endif %}
 
   {{ exposed }}
@@ -57,9 +59,11 @@
   {{ more }}
 
   {% if footer %}
-    <footer>
+    {# <footer> #}
+    <div role="footer">
       {{ footer }}
-    </footer>
+    </div>
+    {# </footer> #}
   {% endif %}
 
   {{ feed_icons }}

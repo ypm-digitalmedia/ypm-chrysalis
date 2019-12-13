@@ -17,6 +17,10 @@
 
 {% if grouping_level == 0 %}
 <h2 class="grouping-primary">{{ title }}</h2>
+{% elseif grouping_level == 1 %}
+<h3 class="grouping-secondary">{{ title }}</h3>
+{% elseif grouping_level == 2 %}
+<h4 class="grouping-tertiary">{{ title }}</h4>
 {% else %}
 {{ title }}
 {% endif %}

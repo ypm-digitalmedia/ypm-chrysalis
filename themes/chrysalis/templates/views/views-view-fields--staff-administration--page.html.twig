@@ -1,0 +1,156 @@
+{#
+/**
+ * @file
+ * Theme override to display all the fields in a row.
+ *
+ * Available variables:
+ * - view: The view in use.
+ * - fields: A list of fields, each one contains:
+ *   - content: The output of the field.
+ *   - raw: The raw data for the field, if it exists. This is NOT output safe.
+ *   - class: The safe class ID to use.
+ *   - handler: The Views field handler controlling this field.
+ *   - inline: Whether or not the field should be inline.
+ *   - wrapper_element: An HTML element for a wrapper.
+ *   - wrapper_attributes: List of attributes for wrapper element.
+ *   - separator: An optional separator that may appear before a field.
+ *   - label: The field's label text.
+ *   - label_element: An HTML element for a label wrapper.
+ *   - label_attributes: List of attributes for label wrapper.
+ *   - label_suffix: Colon after the label.
+ *   - element_type: An HTML element for the field content.
+ *   - element_attributes: List of attributes for HTML element for field content.
+ *   - has_label_colon: A boolean indicating whether to display a colon after
+ *     the label.
+ *   - element_type: An HTML element for the field content.
+ *   - element_attributes: List of attributes for HTML element for field content.
+ * - row: The raw result from the query, with all data it fetched.
+ *
+ * @see template_preprocess_views_view_fields()
+ */
+#}
+
+{# {% for field in fields -%}
+  {{ field.separator }}
+  {%- if field.wrapper_element -%}
+    <{{ field.wrapper_element }}{{ field.wrapper_attributes }}>
+  {%- endif %}
+  {%- if field.label -%}
+    {%- if field.label_element -%}
+      <{{ field.label_element }}{{ field.label_attributes }}>{{ field.label }}{{ field.label_suffix }}</{{ field.label_element }}>
+    {%- else -%}
+      {{ field.label }}{{ field.label_suffix }}
+    {%- endif %}
+  {%- endif %}
+  {%- if field.element_type -%}
+    <{{ field.element_type }}{{ field.element_attributes }}>{{ field.content }}</{{ field.element_type }}>
+  {%- else -%}
+      {{ field.content }}
+  {%- endif %}
+  {%- if field.wrapper_element -%}
+    </{{ field.wrapper_element }}>
+  {%- endif %}
+{%- endfor %} #}
+
+{# CONTENT FOR INDIVIDUAL VIEW ROW -- OVERRIDE #}
+{# RECREATE STAFF CARD VIEW MODE #}
+
+{# is senior staff? #}
+{% if row._entity.field_senior_staff.value %}
+    {% set is_senior_staff = true %}
+{% else %}
+    {% set is_senior_staff = false %}
+{% endif %}
+
+{# is board of curators? #}
+{% if row._entity.field_board_of_curators.value %}
+    {% set is_board_of_curators = true %}
+{% else %}
+    {% set is_board_of_curators = false %}
+{% endif %}
+
+{#PHONE NUMBER #}
+{% set ph_ac = row._entity.field_phone_area_code.value %}
+{% set ph_pre = row._entity.field_phone_prefix.value %}
+{% set ph_suf = row._entity.field_phone_suffix.value %}
+
+{% if row._entity.field_phone_extension.value %}
+    {% set ph_ext = row._entity.field_phone_extension.value %}
+    {% set phone_number = '(' ~ ph_ac ~ ') ' ~ ph_pre ~ '&ndash;' ~ ph_suf ~ ' x' ~ ph_ext %}
+{% else %}
+    {% set phone_number = '(' ~ ph_ac ~ ') ' ~ ph_pre ~ '&ndash;' ~ ph_suf %}
+{% endif %}
+
+{# HEADSHOT IMAGE #}
+{# no need to check if default photo used - comes correctly from row query #}
+{% set thePhoto = fields.field_photo.content  %}
+
+{# messy, but we need to check if this person is one type or two } #}
+{% set types = fields.field_staff_type.content|striptags|trim %}
+{% if 'dmin' in types %} {% set isAdmin = true %} {% else %} {% set isAdmin = false %} {% endif %}
+{% if 'olle' in types %} {% set isColl = true %} {% else %} {% set isColl = false %} {% endif %}
+
+{# now, check if there are division or departments. we need to make a <span> that we can hide with CSS later #}
+{% if isAdmin %}
+    {% set deptText = fields.field_department.content|striptags|trim %}
+    {% set departmentT = row._entity.field_department_t.0.entity.label %}
+    {# {% if row._entity.field_administration_position.value and row._entity.field_department.value %} #}
+    {% if row._entity.field_administration_position.value and departmentT %}
+        {# {% set title_admin = '<em>' ~ row._entity.field_administration_position.value ~ '</em>, <br />' ~  deptText %} #}
+        {% set title_admin = '<em>' ~ row._entity.field_administration_position.value ~ '</em>, <br />' ~  departmentT %}
+    {% elseif not row._entity.field_administration_position.value %}
+        {# {% set title_admin = deptText %} #}
+        {% set title_admin = departmentT %}
+    {# {% elseif not row._entity.field_department.value %} #}
+    {% elseif not departmentT %}
+        {% set title_admin = '<em>' ~ row._entity.field_administration_position.value ~ '</em>' %}
+    {% endif %}
+    {% if is_senior_staff %}
+        {% set title_admin = '<em>' ~ row._entity.field_administration_position.value ~ '</em>' %}
+    {% endif %}
+{% endif %}
+
+
+
+{# <pre style="background: orange">
+{{ departmentT }}
+</pre> #}
+
+
+
+
+
+
+
+
+<div class="staff-info-container">
+    <div class="staff-info-photo">
+        {{ thePhoto }}
+    </div>
+
+    <div class="staff-info-text">
+      <span class="staff-info-text-row staff-info-text-title"><strong>{{ fields.field_first_name.content }} {{ fields.field_last_name.content }}</strong></span>
+
+      {% if isAdmin %}
+          <span class="staff-info-text-row staff-info-text-admin">{{ title_admin|raw }}</span>
+      {% endif %}
+          
+      {% if isColl %}
+      <span class="staff-info-text-row staff-info-text-collections">{{ title_coll|raw }}</span>
+      {% endif %}
+          
+      <hr />
+      <span class="staff-info-text-row staff-info-text-phone"><i class="fas fa-phone"></i> {{ phone_number|raw }}</span>
+
+      <span class="staff-info-text-row staff-info-text-email"><i class="fas fa-envelope"></i> <a href="mailto:{{ row._entity.field_email_address.value }}">{{ row._entity.field_email_address.value }}</a></span>
+
+      {% if row._entity.field_website.value %}
+            <span class="staff-info-text-row staff-info-text-website"><i class="fas fa-globe"></i> {{ fields.field_website.content }}</span>
+      {% endif %}
+      
+      {% if row._entity.field_office_location.value %}
+          <span class="staff-info-text-row staff-info-text-officeloc"><i class="fas fa-location-arrow"></i> {{ row._entity.field_office_location.value }}</span>
+      {% endif %}
+
+    </div>
+</div>

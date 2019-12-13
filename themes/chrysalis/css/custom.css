@@ -434,7 +434,8 @@ h2.section-subtitle {
 .btn-peabody:link,
 .btn-peabody:visited,
 #search-block-form button,
-.search-form button {
+.search-form button,
+button[type=submit] {
     background-color: #01356b!important;
     color: white!important;
     -webkit-transition: 0.2s all ease-in;
@@ -454,7 +455,9 @@ h2.section-subtitle {
 #search-block-form button:focus,
 #search-block-form button:hover,
 .search-form button:focus,
-.search-form button:hover {
+.search-form button:hover,
+button[type=submit]:hover,
+button[type=submit]:focus {
     color: black!important;
     background-color: #fff!important;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
@@ -470,9 +473,12 @@ h2.section-subtitle {
 .btn-peabody:active,
 .btn-peabody.active,
 #search-block-form button:active,
-.search-form button:active {
+.search-form button:active,
+button[type=submit]:active {
     background-color: #eee!important;
     box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+    border: none!important;
+    outline: none;
 }
 
 .button-row {
@@ -1181,6 +1187,109 @@ details {
     font-weight: 900;
     content: "\f073";
 } */
+
+
+/* ==================================================================================
+   STAFF
+   ================================================================================== */
+
+.staff-info-container {
+    width: 200px;
+    -webkit-transition: 0.5s all ease-out;
+    -moz-transition: 0.5s all ease-out;
+    transition: 0.5s all ease-out;
+    padding-bottom: 0.5em;
+}
+
+.staff-info-container:hover {
+    -webkit-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.25);
+    -moz-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.25);
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.25);
+    -webkit-transition: 0.5s all ease-out;
+    -moz-transition: 0.5s all ease-out;
+    transition: 0.5s all ease-out;
+}
+
+.staff-info-photo {
+    margin-top: 1em;
+}
+
+.staff-info-photo img {
+    width: 100%;
+    height: auto;
+    /* border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-top-left-radius: 20px; */
+}
+
+.staff-info-text {}
+
+.staff-info-text hr {
+    margin-top: 0.5rem!important;
+    margin-bottom: 0.5rem!important;
+}
+
+.staff-info-text-title {
+    font-size: 1.15em;
+}
+
+.staff-info-text-admin {
+    /* color: red; */
+}
+
+.staff-info-text-collections {
+    /* color: blue; */
+}
+
+.staff-info-text-email,
+.staff-info-text-phone,
+.staff-info-text-website,
+.staff-info-text-officeloc {
+    font-size: 0.9em;
+}
+
+.staff-info-text-row {
+    display: block;
+}
+
+.inline-spext {
+    display: inline!important;
+}
+
+.inline-spext::before {
+    content: " x";
+}
+
+.inline-division::before {
+    content: ", ";
+}
+
+.staff-info-text-row strong {
+    text-transform: none!important;
+}
+
+
+/* VIEW --------------------------------------------------------- */
+
+.item-list-staff-admin-members,
+.item-list-staff-coll-members,
+.item-list-staff-members {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.item-list-staff-admin-level,
+.item-list-staff-coll-level,
+.item-list-staff-level {
+    margin-bottom: 2em;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 2em;
+}
+
+.item-list-staff-admin-department-title,
+.item-list-staff-coll-division-title {}
 
 
 /* ==================================================================================

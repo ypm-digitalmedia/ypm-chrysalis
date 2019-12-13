@@ -78,7 +78,8 @@ use Drupal\user\UserInterface;
  *   }
  * )
  */
-class Paragraph extends ContentEntityBase implements ParagraphInterface {
+class Paragraph extends ContentEntityBase implements ParagraphInterface
+{
 
   use EntityNeedsSaveTrait;
 

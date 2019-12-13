@@ -1,0 +1,248 @@
+{#
+/**
+ * @file
+ * Theme override to display a node.
+ *
+ * Available variables:
+ * - node: The node entity with limited access to object properties and methods.
+ *   Only method names starting with "get", "has", or "is" and a few common
+ *   methods such as "id", "label", and "bundle" are available. For example:
+ *   - node.getCreatedTime() will return the node creation timestamp.
+ *   - node.hasField('field_example') returns TRUE if the node bundle includes
+ *     field_example. (This does not indicate the presence of a value in this
+ *     field.)
+ *   - node.isPublished() will return whether the node is published or not.
+ *   Calling other methods, such as node.delete(), will result in an exception.
+ *   See \Drupal\node\Entity\Node for a full list of public properties and
+ *   methods for the node object.
+ * - label: The title of the node.
+ * - content: All node items. Use {{ content }} to print them all,
+ *   or print a subset such as {{ content.field_example }}. Use
+ *   {{ content|without('field_example') }} to temporarily suppress the printing
+ *   of a given child element.
+ * - author_picture: The node author user entity, rendered using the "compact"
+ *   view mode.
+ * - metadata: Metadata for this node.
+ * - date: Themed creation date field.
+ * - author_name: Themed author name field.
+ * - url: Direct URL of the current node.
+ * - display_submitted: Whether submission information should be displayed.
+ * - attributes: HTML attributes for the containing element.
+ *   The attributes.class element may contain one or more of the following
+ *   classes:
+ *   - node: The current template type (also known as a "theming hook").
+ *   - node--type-[type]: The current node type. For example, if the node is an
+ *     "Article" it would result in "node--type-article". Note that the machine
+ *     name will often be in a short form of the human readable label.
+ *   - node--view-mode-[view_mode]: The View Mode of the node; for example, a
+ *     teaser would result in: "node--view-mode-teaser", and
+ *     full: "node--view-mode-full".
+ *   The following are controlled through the node publishing options.
+ *   - node--promoted: Appears on nodes promoted to the front page.
+ *   - node--sticky: Appears on nodes ordered above other non-sticky nodes in
+ *     teaser listings.
+ *   - node--unpublished: Appears on unpublished nodes visible only to site
+ *     admins.
+ * - title_attributes: Same as attributes, except applied to the main title
+ *   tag that appears in the template.
+ * - content_attributes: Same as attributes, except applied to the main
+ *   content tag that appears in the template.
+ * - author_attributes: Same as attributes, except applied to the author of
+ *   the node tag that appears in the template.
+ * - title_prefix: Additional output populated by modules, intended to be
+ *   displayed in front of the main title tag that appears in the template.
+ * - title_suffix: Additional output populated by modules, intended to be
+ *   displayed after the main title tag that appears in the template.
+ * - view_mode: View mode; for example, "teaser" or "full".
+ * - teaser: Flag for the teaser state. Will be true if view_mode is 'teaser'.
+ * - page: Flag for the full page state. Will be true if view_mode is 'full'.
+ * - readmore: Flag for more state. Will be true if the teaser content of the
+ *   node cannot hold the main body content.
+ * - logged_in: Flag for authenticated user status. Will be true when the
+ *   current user is a logged-in member.
+ * - is_admin: Flag for admin user status. Will be true when the current user
+ *   is an administrator.
+ *
+ * @see template_preprocess_node()
+ *
+ * @todo Remove the id attribute (or make it a class), because if that gets
+ *   rendered twice on a page this is invalid CSS for example: two lists
+ *   in different view modes.
+ */
+#}
+
+
+
+
+
+
+{# {% set types = content.field_staff_type['#items'].getString() %} #}
+
+
+{# PHONE NUMBER #}
+{% set ph_ac = content.field_phone_area_code.0['#context'].value %}
+{% set ph_pre = content.field_phone_prefix.0['#context'].value %}
+{% set ph_suf = content.field_phone_suffix.0['#context'].value %}
+
+{% if content.field_phone_extension.0 %}
+    {% set ph_ext = content.field_phone_extension.0['#context'].value %}
+    {% set phone_number = '(' ~ ph_ac ~ ') ' ~ ph_pre ~ '&ndash;' ~ ph_suf ~ ' x' ~ ph_ext %}
+{% else %}
+    {% set phone_number = '(' ~ ph_ac ~ ') ' ~ ph_pre ~ '&ndash;' ~ ph_suf %}
+{% endif %}
+
+{# HEADSHOT IMAGE #}
+{# check if default photo used - messy #}
+{% if '.jpg' in node.field_photo.entity.uri.value or '.png' in node.field_photo.entity.uri.value or '.jpeg' in node.field_photo.entity.uri.value %} {% set defaultPhoto = false %} {% else %} {% set defaultPhoto = true %} {% endif %}
+{% if defaultPhoto %}
+    {% set headshotImageFull = '/sites/default/files/default_images/placeholder_headshot_toro.png' %}
+    {% set headshotImageCrop = '/sites/default/files/default_images/placeholder_headshot_toro.png' %}
+{% else %}
+    {% set headshotImageFull = file_url(content.field_photo|field_target_entity.uri.value) %} 
+    {% set headshotImageCrop = node.field_photo.entity.uri.value | image_style('400x400_headshot') %}
+{% endif %}
+
+{# messy, but we need to check if this person is one type or two } #}
+{% set types = content.field_staff_type['#items'].getString() %}
+{% if 'dmin' in types %} {% set isAdmin = true %} {% else %} {% set isAdmin = false %} {% endif %}
+{% if 'olle' in types %} {% set isColl = true %} {% else %} {% set isColl = false %} {% endif %}
+
+{# now, check if there are division or departments. we need to make a <span> that we can hide with CSS later #}
+{% if isAdmin %}
+    {# {% set departmentT = node.field_department_t.0.entity.label %} #}
+    {% set departmentT = content.field_department_t.0['#plain_text'] %}
+    {# {% if content.field_administration_position.0 and content.field_department.0 %} #}
+    {% if content.field_administration_position.0 and departmentT %}
+        {# {% set title_admin = '<em>' ~ content.field_administration_position['#items'].getString() ~ '</em>, <br />' ~  content.field_department.0['#markup'] %} #}
+        {% set title_admin = '<em>' ~ content.field_administration_position['#items'].getString() ~ '</em>, <br />' ~  departmentT %}
+    {% elseif not content.field_administration_position.0 %}
+        {# {% set title_admin = content.field_department.0['#markup'] %} #}
+        {% set title_admin = departmentT %}
+    {# {% elseif not content.field_department.0 %} #}
+    {% elseif not departmentT %}
+        {% set title_admin = '<em>' ~ content.field_administration_position['#items'].getString() ~ '</em>' %}
+    {% endif %}
+
+{% endif %}
+
+{% if isColl %}
+    {# {% set divisionT = node.field_division_t.0.entity.label %} #}
+    {% set divisionT = content.field_division_t.0['#plain_text'] %}
+    {# {% if content.field_collections_position.0 and content.field_division.0 %} #}
+    {% if content.field_collections_position.0 and divisionT %}
+        {# {% set title_coll = '<em>' ~ content.field_collections_position['#items'].getString() ~ '</em>, <br />' ~  content.field_division.0['#markup'] %} #}
+        {% set title_coll = '<em>' ~ content.field_collections_position['#items'].getString() ~ '</em>, <br />' ~  divisionT %}
+    {% elseif not content.field_collections_position.0 %}
+        {# {% set title_coll = content.field_division.0['#markup'] %} #}
+        {% set title_coll = divisionT %}
+    {# {% elseif not content.field_division.0 %} #}
+    {% elseif not divisionT %}
+        {% set title_coll = '<em>' ~ content.field_collections_position['#items'].getString() ~ '</em>' %}
+    {% endif %}
+
+{% endif %}
+
+
+
+{# <pre style="background: #ddd">
+{{ kint(entities_t) }}
+</pre> #}
+
+
+{# <pre style="background: cyan">
+{{ node.field_division_t.0.entity.label|trim }}
+</pre> #}
+
+{# <pre style="background: gold">
+{{ content.field_division_t.0 }}
+{{ content.field_department_t.0 }}
+</pre> #}
+
+
+<div class="container">
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="page-title">
+            {{ node.label }}
+        </h1>
+    </div> <!-- /.col -->
+</div><!-- /.row -->
+
+
+
+<div class="row">
+<div class="col-md-12">
+
+<div class="staff-info-container">
+    <div class="staff-info-photo">
+        <img alt="{{ content.field_first_name.0 }} {{ content.field_last_name.0 }}" src="{{ headshotImageCrop }}" />
+    </div>
+    <div class="staff-info-text">
+        <span class="staff-info-text-row staff-info-text-title"><strong>{{ content.field_first_name.0 }} {{ content.field_last_name.0 }}</strong></span>
+        
+        {% if isAdmin %}
+        <span class="staff-info-text-row staff-info-text-admin">{{ title_admin|raw }}</span>
+        {% endif %}
+        
+        {% if isColl %}
+        <span class="staff-info-text-row staff-info-text-collections">{{ title_coll|raw }}</span>
+        {% endif %}
+        
+        <hr />
+        <span class="staff-info-text-row staff-info-text-phone"><i class="fas fa-phone"></i> {{ phone_number|raw }}</span>
+
+        <span class="staff-info-text-row staff-info-text-email"><i class="fas fa-envelope"></i> <a href="mailto:{{ content.field_email_address.0 }}">{{ content.field_email_address.0 }}</a></span>
+        
+        {% if content.field_website.0 %}
+            <span class="staff-info-text-row staff-info-text-website"><i class="fas fa-globe"></i> {{ content.field_website.0 }}</span>
+        {% endif %}
+        
+        {% if content.field_office_location.0 %}
+            <span class="staff-info-text-row staff-info-text-officeloc"><i class="fas fa-location-arrow"></i> {{ content.field_office_location.0 }}</span>
+        {% endif %}
+
+    </div>
+</div>
+
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+
+<hr />
+<h2>Affiliation:</h2>
+<table>
+<tr><td>Active:</td><td><strong>{{ content.field_status.0 }}</strong></td></tr>
+<tr><td>Staff Type:</td><td>{{ types }}</td></tr>
+<tr><td>Is Admin:</td><td><strong>{{ isAdmin }}</strong></td></tr>
+<tr><td>Is Collections:</td><td><strong>{{ isColl }}</strong></td></tr>
+<tr><td>Department(taxonomy term):</td><td><strong>{{ departmentT }}</strong></td></tr>
+<tr><td>Division(taxonomy term):</td><td><strong>{{ divisionT }}</strong></td></tr>
+<tr><td><em style="color: #999">Department (deprecated):</td><td><strong style="color: #999">{{ content.field_department.0['#markup'] }} </strong></em></td></tr>
+<tr><td><em style="color: #999">Division (deprecated):</td><td><strong style="color: #999">{{ content.field_division.0['#markup'] }} </strong></em></td></tr>
+<tr><td>Board of curators (collections):</td><td><strong>{{ content.field_board_of_curators.0 }}</strong></td></tr>
+<tr><td>Senior Staff (administration):</td><td><strong>{{ content.field_senior_staff.0 }}</strong></td></tr>
+<tr><td>Director (administration):</td><td><strong>{{ content.field_isdirector.0 }}</strong></td></tr>
+</table>
+
+</div>
+</div>
+
+<div class="row">
+<div class="col-md-12">
+<hr />
+</div>
+</div>
+
+<div class="row">
+<div class="col-md-12">
+<ul class="action-links">
+<li>
+<a href="/node/add/staff" class="button button-action button--primary button--small" data-drupal-link-system-path="node/add/staff">Add staff</a>
+</li>
+</ul>
+</div>
+</div>
+
+</div> <!-- /.container -->

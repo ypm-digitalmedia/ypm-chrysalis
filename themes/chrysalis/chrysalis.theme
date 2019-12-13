@@ -6,6 +6,10 @@
  */
 
 use Drupal\node\NodeInterface;
+use Drupal\node\Entity\Node;
+use Drupal\Core\Render\Element;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\paragraphs\Entity\Paragraph;
 
 /**
  * Implements hook_preprocess_HOOK() for HTML document templates.
@@ -52,21 +56,154 @@ function chrysalis_theme_suggestions_block_alter(array &$suggestions, array $var
 
 }
 
+function chrysalis_preprocess_node(array &$variables) {
+    $node = $variables['node'];
+
+    // $variables['ref'] = $node->get('tags')-referencedEntities();
+
+    // $variables['t_entities'] = [
+    //     'division_t' => $node->field_division_t->entity,
+    //     'department_t' => $node->field_department_t->entity
+    // ];
+
+    // $variables['entities'] = $node->get($field)->referencedEntities(); 
+
+    // if (!$node->field_division == null ) {
+    //     $variables['entities_t']['division_t'] = $node->field_division->entity;
+    // }
+    // if (!$node->field_department_t == null) {
+    //     $variables['entities_t']['department_t'] = $node->field_department_t->entity;
+    // }
+    
+    // $entity_id = $node->get('field_division_t')->first()->getValue()['target_id'];
+      
+
+}
+
 /**
  * Implements hook_preprocess_paragraph().
  * @param $variables
  */
 function chrysalis_preprocess_paragraph(&$variables) {
-  $variables['is_front'] = Drupal::service('path.matcher')->isFrontPage();
+    $variables['is_front'] = Drupal::service('path.matcher')->isFrontPage();
 
-  // Ensure the cache varies correctly.
-  // Drupal 8.2.x or lower
-  $variables['#cache']['contexts'][] = 'url.path';
+    // Ensure the cache varies correctly.
+    // Drupal 8.2.x or lower
+    $variables['#cache']['contexts'][] = 'url.path';
 
-  // Ensure the cache varies correctly.
-  // Drupal 8.3.x+
-  $variables['#cache']['contexts'][] = 'url.path.is_front'; 
+    // Ensure the cache varies correctly.
+    // Drupal 8.3.x+
+    $variables['#cache']['contexts'][] = 'url.path.is_front';
+
+    $node = \Drupal::request()->attributes->get('node');
+    $variables['nodetitle'] = $node->getTitle();
+    $variables['node'] = $node;
+    // $ref = $node->field_paragraphs_content->referencedEntities();
+
+
+    $paragraph = $variables['paragraph'];
+    // hotfix to grab content from type=staff which match taxonomy terms
+    // division_t and department_t references
+    // super ghetto
+    if (!$paragraph->field_select_staff_group == null ) {
+        $tid = $paragraph->get('field_select_staff_group')->first()->getValue()['target_id'];
+        
+        // $term_nodes = getNodesByTid($tid);
+        $term_nodes = getNodesByTid($tid);
+
+        $refcontent = array();
+        foreach( $term_nodes as $nodeobj ) {
+            // create container for each reference node
+            $ref = array();
+            // grab values
+            $active = $nodeobj->field_status->value;
+            $staff_type = $nodeobj->field_staff_type->value;
+            $senior_staff = $nodeobj->field_senior_staff->value;
+            $board_of_curators = $nodeobj->field_board_of_curators->value;
+            $first_name = $nodeobj->field_first_name->value;
+            $last_name = $nodeobj->field_last_name->value;
+            
+            // fix this - it doesn't work
+            // need to get taxon term name.  do this in twig - field_select_staff_group
+            $department_t = $nodeobj->field_department_t->value;
+            $division_t = $nodeobj->field_division_t->value;
+            // endfix
+            
+            $phone_area_code = $nodeobj->field_phone_area_code->value;
+            $phone_prefix = $nodeobj->field_phone_prefix->value;
+            $phone_suffix = $nodeobj->field_phone_suffix->value;
+            $phone_extension = $nodeobj->field_phone_extension->value;
+            $email_address = $nodeobj->field_email_address->value;
+            $website = array(
+                'title' => $nodeobj->field_website->title,
+                'uri' => $nodeobj->field_website->uri
+            );
+            $office_location = $nodeobj->field_office_location->value;
+
+
+
+            // send values to twig template
+            $ref['field_active'] = $active;
+            $ref['field_staff_type'] = $staff_type;
+            $ref['field_senior_staff'] = $senior_staff;
+            $ref['field_board_of_curators'] = $board_of_curators;
+            $ref['field_first_name'] = $first_name;
+            $ref['field_last_name'] = $last_name;
+            $ref['field_department_t'] = $department_t;
+            $ref['field_division_t'] = $division_t;
+            $ref['field_phone_area_code'] = $phone_area_code;
+            $ref['field_phone_prefix'] = $phone_prefix;
+            $ref['field_phone_suffix'] = $phone_suffix;
+            $ref['field_phone_extension'] = $phone_extension;
+            $ref['field_email_address'] = $email_address;
+            $ref['field_website'] = array(
+                'uri' => $website['uri'],
+                'title' => $website['title']
+            );
+            $ref['field_office_location'] = $office_location;
+            
+
+
+
+
+
+
+
+
+
+            array_push($refcontent,$ref);
+        }
+        $variables['refcontent'] = $refcontent;
+        $variables['term_nodes'] = $term_nodes;
+        $variables['tid'] = (int)$tid;
+    }
 }
+
+
+ function chrysalis_preprocess_taxonomy_term(&$variables) {
+    // $variables['view_mode'] = $variables['elements']['#view_mode'];
+    // $variables['term'] = $variables['elements']['#taxonomy_term'];
+  
+    // /** @var \Drupal\taxonomy\TermInterface $term */
+    // $term = $variables['term'];
+    // $variables['url'] = $term
+    //   ->url();
+  
+    // // We use name here because that is what appears in the UI.
+    // $variables['name'] = $variables['elements']['name'];
+    // unset($variables['elements']['name']);
+    // $variables['page'] = $variables['view_mode'] == 'full' && taxonomy_term_is_page($term);
+  
+    // // Helpful $content variable for templates.
+    // $variables['content'] = array();
+    // foreach (Element::children($variables['elements']) as $key) {
+    //   $variables['content'][$key] = $variables['elements'][$key];
+    // }
+
+   }
+
+
+
 
 // function chrysalis_preprocess_views_view_list(&$variables) {
 //     $view = $variables['view'];
@@ -81,3 +218,41 @@ function chrysalis_preprocess_paragraph(&$variables) {
 //             }
 //         }
 //     }
+
+function getNodesByTid($tid) {
+    if(empty($tid)){
+        return NULL;
+    }
+    $query = \Drupal::database()->select('taxonomy_index', 'ti');
+    $query->fields('ti', array('nid'));
+    $query->condition('ti.tid', $tid, 'IN');
+    $query->distinct(TRUE);
+    $result = $query->execute();
+    if($nodeIds = $result->fetchCol()){
+        return Node::loadMultiple($nodeIds);
+    }
+    return NULL;
+}
+
+function getNodesByTids($termIds){
+    
+    $termIds = (array) $termIds;
+    if(empty($termIds)){
+      return NULL;
+    }
+  
+    $query = \Drupal::database()->select('taxonomy_index', 'ti');
+    $query->fields('ti', array('nid'));
+    $query->condition('ti.tid', $termIds, 'IN');
+    $query->distinct(TRUE);
+    $result = $query->execute();
+  
+    if($nodeIds = $result->fetchCol()){
+      return Node::loadMultiple($nodeIds);
+    }
+  
+    return NULL;
+  }
+
+
+?>
