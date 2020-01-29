@@ -1,0 +1,13 @@
+name: BigCommerce Test
+type: module
+description: A test module for BigCommerce.
+# core: 8.x
+package: Testing
+dependencies:
+  - bigcommerce:bigcommerce
+
+# Information added by Drupal.org packaging script on 2019-08-12
+version: '8.x-1.0'
+core: '8.x'
+project: 'bigcommerce'
+datestamp: 1565650089

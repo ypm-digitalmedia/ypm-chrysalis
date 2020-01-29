@@ -47,67 +47,108 @@
 {% block paragraph %}
   <div{{ attributes.addClass(classes) }}>
     {% block content %}
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col-xs-12">
-                  {# title only #}
-                  {{ content.field_select_staff_group }}
-                </div>
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-xs-12">
+              {# standard group title exists as 'select_staff_group' #}
+              {# switch is (bool):content.field_include_standard_group_tit #}
+              {% if show_group_title == true %}
+                {{ content.field_select_staff_group }}
+              {% endif %}
             </div>
-            <div class="row">
-                <pre style='background: #ddd'>{{ kint(refcontent) }}</pre><br />
-            </div>
-            <div class="row">
-                {# fetched content #}
-                {% for ref in refcontent %}
+        </div>
+        <div class="row">
+            {# fetched content #}
+            {% for ref in refcontent %}
+            {% if ref.field_active %}
 
-                {# create custom variables first #}
-                {# PHONE NUMBER #}
-                {% set ph_ac = ref.field_phone_area_code %}
-                {% set ph_pre = ref.field_phone_prefix %}
-                {% set ph_suf = ref.field_phone_suffix %}
+              {# create custom variables first #}
+              {# PHONE NUMBER #}
+              {% set ph_ac = ref.field_phone_area_code %}
+              {% set ph_pre = ref.field_phone_prefix %}
+              {% set ph_suf = ref.field_phone_suffix %}
 
+              {% if ref.field_phone_extension %}
+                  {% set ph_ext = ref.field_phone_extension %}
+                  {% set phone_number = '(' ~ ph_ac ~ ') ' ~ ph_pre ~ '&ndash;' ~ ph_suf ~ ' x' ~ ph_ext %}
+              {% else %}
+                  {% set phone_number = '(' ~ ph_ac ~ ') ' ~ ph_pre ~ '&ndash;' ~ ph_suf %}
+              {% endif %}
 
-                {% if ref.field_phone_extension %}
-                    {% set ph_ext = ref.field_phone_extension %}
-                    {% set phone_number = '(' ~ ph_ac ~ ') ' ~ ph_pre ~ '&ndash;' ~ ph_suf ~ ' x' ~ ph_ext %}
-                {% else %}
-                    {% set phone_number = '(' ~ ph_ac ~ ') ' ~ ph_pre ~ '&ndash;' ~ ph_suf %}
-                {% endif %}
+              {# HEADSHOT IMAGE #}
+              {# check if default photo used - messy #}
+              {% if '.jpg' in ref.photo.uri.0.value or '.png' in ref.photo.uri.0.value or '.jpeg' in ref.photo.uri.0.value %} {% set defaultPhoto = false %} {% else %} {% set defaultPhoto = true %} {% endif %}
+              {% if defaultPhoto %}
+                  {% set headshotImageFull = '/sites/default/files/default_images/placeholder_headshot_toro.png' %}
+                  {% set headshotImageCrop = '/sites/default/files/default_images/placeholder_headshot_toro.png' %}
+              {% else %}
+                  {% set headshotImageFull = file_url(ref.photo.uri.0.value) %} 
+                  {% set headshotImageCrop = ref.photo.uri.0.value | image_style('400x400_headshot') %}
+              {% endif %}
 
-                <span style="color: red">
+              {# messy, but we need to check if this person is one type or two } #}
+              {% if group_type == "department" %} {% set isAdmin = true %} {% else %} {% set isAdmin = false %} {% endif %}
+              {% if group_type == "division" %} {% set isColl = true %} {% else %} {% set isColl = false %} {% endif %}
 
-                  
+              {% if isAdmin %}
+                  {% set departmentT = ref.field_department_t %}
+                  {% if ref.field_administration_position and departmentT %}
+                      {% set title_admin = '<em>' ~ ref.field_administration_position ~ '</em>, <br />' ~  departmentT %}
+                  {% elseif not ref.field_administration_position %}
+                      {% set title_admin = departmentT %}
+                  {% elseif not departmentT %}
+                      {% set title_admin = '<em>' ~ ref.field_administration_position ~ '</em>' %}
+                  {% endif %}
+              {% endif %}
+              {% if isColl %}
+                  {% set divisionT = ref.field_division_t %}
+                  {% if ref.field_collections_position and divisionT %}
+                      {% set title_coll = '<em>' ~ ref.field_collections_position ~ '</em>, <br />' ~  divisionT %}
+                  {% elseif not ref.field_collections_position %}
+                      {% set title_coll = divisionT %}
+                  {% elseif not divisionT %}
+                      {% set title_coll = '<em>' ~ ref.field_collections_position ~ '</em>' %}
+                  {% endif %}
+              {% endif %}
 
-                </span>
-
-
-
-                  <div class="col-sm-6 col-md-4 col-lg-3">
-                    <div class="staff-info-container">
-                      <div class="staff-info-photo">
-                        {# photo #}
-                      </div>
-                      <div class="staff-info-text">
-                        {# text fields #}
-                        <span class="staff-info-text-row staff-info-text-title"><strong>{{ ref.field_first_name|trim }} {{ ref.field_last_name|trim }}</strong></span>
-                        {# title #}
-                        <hr />
-                        <span class="staff-info-text-row staff-info-text-phone"><i class="fas fa-phone"></i> {{ phone_number|raw }}</span>
-                        <span class="staff-info-text-row staff-info-text-email"><i class="fas fa-envelope"></i> <a href="mailto:{{ ref.field_email_address }}">{{ ref.field_email_address }}</a></span>
-                        {% if ref.field_website.uri %}
-                            <span class="staff-info-text-row staff-info-text-website"><i class="fas fa-globe"></i> <a href="{{ ref.field_website.uri }}" title="{{ ref.field_website.title }}">{{ ref.field_website.title }}</a></span>
-                        {% endif %}
-                        {% if ref.field_office_location %}
-                            <span class="staff-info-text-row staff-info-text-officeloc"><i class="fas fa-location-arrow"></i> {{ ref.field_office_location }}</span>
-                        {% endif %}
-                      </div>
+              {# CONTENT #}
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                  <div class="staff-info-container">
+                    <div class="staff-info-photo">
+                        <img alt="{{ ref.field_first_name|trim }} {{ ref.field_last_name|trim }}" src="{{ headshotImageCrop }}" />
+                    </div>
+                    <div class="staff-info-text">
+                      {# text fields #}
+                      <span class="staff-info-text-row staff-info-text-title"><strong>{{ ref.field_first_name|trim }} {{ ref.field_last_name|trim }}</strong></span>
+                      {# title #}
+                      {% if isAdmin %}
+                        <span class="staff-info-text-row staff-info-text-admin">{{ title_admin|raw }}</span>
+                      {% endif %}
+                      {% if isColl %}
+                        <span class="staff-info-text-row staff-info-text-collections">{{ title_coll|raw }}</span>
+                      {% endif %}
+                      <hr />
+                      <span class="staff-info-text-row staff-info-text-phone"><i class="fas fa-phone"></i> {{ phone_number|raw }}</span>
+                      <span class="staff-info-text-row staff-info-text-email"><i class="fas fa-envelope"></i> <a href="mailto:{{ ref.field_email_address }}">{{ ref.field_email_address }}</a></span>
+                      {% if ref.field_website.uri %}
+                          <span class="staff-info-text-row staff-info-text-website"><i class="fas fa-globe"></i> <a href="{{ ref.field_website.uri }}" title="{{ ref.field_website.title }}">{{ ref.field_website.title }}</a></span>
+                      {% endif %}
+                      {% if ref.field_office_location %}
+                          <span class="staff-info-text-row staff-info-text-officeloc"><i class="fas fa-location-arrow"></i> {{ ref.field_office_location }}</span>
+                      {% endif %}
+                      
+                      
+                      
                     </div>
                   </div>
-                {% endfor %}
-            </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+        </div>
+        {% if show_group_bottom_hr == true %}
             <hr />
-          </div>
+        {% endif %}
+      </div>
     {% endblock %}
   </div>
 {% endblock paragraph %}

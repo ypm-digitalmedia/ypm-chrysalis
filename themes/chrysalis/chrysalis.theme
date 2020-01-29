@@ -107,7 +107,18 @@ function chrysalis_preprocess_paragraph(&$variables) {
     // super ghetto
     if (!$paragraph->field_select_staff_group == null ) {
         $tid = $paragraph->get('field_select_staff_group')->first()->getValue()['target_id'];
-        
+        $theTerm = Term::load($tid);
+        // get the vocabulary name ('division'|'department')
+        $group_type = $theTerm->bundle();
+        $variables['group_type'] = $group_type;
+
+        //cosmetic
+        $showSgt = (bool)$paragraph->field_include_standard_group_tit->value;
+        if( $showSgt ) { $showTitle = true; } else { $showTitle = false; }
+        $showBottomHr = (bool)$paragraph->field_include_bottom_separator->value;
+        $variables['show_group_title'] = $showTitle;
+        $variables['show_group_bottom_hr'] = $showBottomHr;
+
         // $term_nodes = getNodesByTid($tid);
         $term_nodes = getNodesByTid($tid);
 
@@ -117,18 +128,32 @@ function chrysalis_preprocess_paragraph(&$variables) {
             $ref = array();
             // grab values
             $active = $nodeobj->field_status->value;
-            $staff_type = $nodeobj->field_staff_type->value;
+            // $staff_type = $nodeobj->field_staff_type;
             $senior_staff = $nodeobj->field_senior_staff->value;
             $board_of_curators = $nodeobj->field_board_of_curators->value;
             $first_name = $nodeobj->field_first_name->value;
             $last_name = $nodeobj->field_last_name->value;
             
-            // fix this - it doesn't work
-            // need to get taxon term name.  do this in twig - field_select_staff_group
-            $department_t = $nodeobj->field_department_t->value;
-            $division_t = $nodeobj->field_division_t->value;
+            $photo = $nodeobj->field_photo->entity;
+            
+            $department_t = $nodeobj->field_department_t->entity;
+            $division_t = $nodeobj->field_division_t->entity;
+            $hasDept = !empty($department_t);
+            $hasDiv = !empty($division_t);
+            
+            if( $hasDept ) {
+                $dept_term = \Drupal\taxonomy\Entity\Term::load($nodeobj->get('field_department_t')->target_id);
+                $department_t = $dept_term->name->value;
+            }
+            if( $hasDiv ) {
+                $div_term = \Drupal\taxonomy\Entity\Term::load($nodeobj->get('field_division_t')->target_id);
+                $division_t = $div_term->name->value;
+            }
             // endfix
             
+            $collections_position = $nodeobj->field_collections_position->value;
+            $admin_position = $nodeobj->field_administration_position->value;
+
             $phone_area_code = $nodeobj->field_phone_area_code->value;
             $phone_prefix = $nodeobj->field_phone_prefix->value;
             $phone_suffix = $nodeobj->field_phone_suffix->value;
@@ -140,17 +165,23 @@ function chrysalis_preprocess_paragraph(&$variables) {
             );
             $office_location = $nodeobj->field_office_location->value;
 
-
+            $ref['affiliation'] = array(
+                'collections' => $hasDiv,
+                'administration'=> $hasDept
+            );
 
             // send values to twig template
-            $ref['field_active'] = $active;
-            $ref['field_staff_type'] = $staff_type;
-            $ref['field_senior_staff'] = $senior_staff;
-            $ref['field_board_of_curators'] = $board_of_curators;
+            $ref['field_active'] = (bool)$active;
+            // $ref['field_staff_type'] = $staff_type;
+            $ref['field_senior_staff'] = (bool)$senior_staff;
+            $ref['field_board_of_curators'] = (bool)$board_of_curators;
             $ref['field_first_name'] = $first_name;
             $ref['field_last_name'] = $last_name;
+            $ref['photo'] = $photo;
             $ref['field_department_t'] = $department_t;
             $ref['field_division_t'] = $division_t;
+            $ref['field_collections_position'] = $collections_position;
+            $ref['field_administration_position'] = $admin_position;
             $ref['field_phone_area_code'] = $phone_area_code;
             $ref['field_phone_prefix'] = $phone_prefix;
             $ref['field_phone_suffix'] = $phone_suffix;
@@ -161,18 +192,24 @@ function chrysalis_preprocess_paragraph(&$variables) {
                 'title' => $website['title']
             );
             $ref['field_office_location'] = $office_location;
-            
-
-
-
-
-
-
-
-
-
             array_push($refcontent,$ref);
         }
+
+        // now we have to sort refcontent.
+        // 1. senior staff DESC
+        // 2. board of curators DESC
+        // 3. last name ASC
+        
+        # get a list of sort columns and their data to pass to array_multisort
+        $sort = array();
+        foreach($refcontent as $k=>$v) {
+            $sort['field_last_name'][$k] = $v['field_last_name'];
+            $sort['field_board_of_curators'][$k] = $v['field_board_of_curators'];
+            $sort['field_senior_staff'][$k] = $v['field_senior_staff'];
+        }
+        # sort by above columns
+        array_multisort($sort['field_senior_staff'], SORT_DESC, $sort['field_board_of_curators'], SORT_DESC, $sort['field_last_name'], SORT_ASC, $refcontent);
+
         $variables['refcontent'] = $refcontent;
         $variables['term_nodes'] = $term_nodes;
         $variables['tid'] = (int)$tid;
@@ -226,6 +263,7 @@ function getNodesByTid($tid) {
     $query = \Drupal::database()->select('taxonomy_index', 'ti');
     $query->fields('ti', array('nid'));
     $query->condition('ti.tid', $tid, 'IN');
+    // $query->orderBy('field_senior_staff', 'DESC')->orderBy('field_board_of_curators', 'DESC')->orderBy('field_last_name', 'ASC');
     $query->distinct(TRUE);
     $result = $query->execute();
     if($nodeIds = $result->fetchCol()){
@@ -234,25 +272,25 @@ function getNodesByTid($tid) {
     return NULL;
 }
 
-function getNodesByTids($termIds){
+// function getNodesByTids($termIds){
     
-    $termIds = (array) $termIds;
-    if(empty($termIds)){
-      return NULL;
-    }
+//     $termIds = (array) $termIds;
+//     if(empty($termIds)){
+//       return NULL;
+//     }
   
-    $query = \Drupal::database()->select('taxonomy_index', 'ti');
-    $query->fields('ti', array('nid'));
-    $query->condition('ti.tid', $termIds, 'IN');
-    $query->distinct(TRUE);
-    $result = $query->execute();
+//     $query = \Drupal::database()->select('taxonomy_index', 'ti');
+//     $query->fields('ti', array('nid'));
+//     $query->condition('ti.tid', $termIds, 'IN');
+//     $query->distinct(TRUE);
+//     $result = $query->execute();
   
-    if($nodeIds = $result->fetchCol()){
-      return Node::loadMultiple($nodeIds);
-    }
+//     if($nodeIds = $result->fetchCol()){
+//       return Node::loadMultiple($nodeIds);
+//     }
   
-    return NULL;
-  }
+//     return NULL;
+//   }
 
 
 ?>
