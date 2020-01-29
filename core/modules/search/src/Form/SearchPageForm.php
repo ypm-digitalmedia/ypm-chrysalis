@@ -68,12 +68,12 @@ class SearchPageForm extends FormBase {
       '#value' => $this->t('Search'),
     ];
 
-    // $form['help_link'] = [
-    //   '#type' => 'link',
-    //   '#url' => new Url('search.help_' . $this->entity->id()),
-    //   '#title' => $this->t('Search help'),
-    //   '#options' => ['attributes' => ['class' => 'search-help-link']],
-    // ];
+    $form['help_link'] = [
+      '#type' => 'link',
+      '#url' => new Url('search.help_' . $this->entity->id()),
+      '#title' => $this->t('Search help'),
+      '#options' => ['attributes' => ['class' => 'search-help-link']],
+    ];
 
     // Allow the plugin to add to or alter the search form.
     $plugin->searchFormAlter($form, $form_state);
