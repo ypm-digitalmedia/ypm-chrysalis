@@ -35,7 +35,7 @@ regions:
   #social_menu: Social Media Links
 
 # Information added by Drupal.org packaging script on 2016-07-08
-version: '0.0.1'
+version: '8.x-1.0'
 core: '8.x'
 project: 'ypm-chrysalis'
-datestamp: 1467944061
+datestamp: 1580398258
