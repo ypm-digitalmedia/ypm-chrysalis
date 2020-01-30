@@ -2,14 +2,13 @@ name: 'Webform Test Bootstrap Helper'
 type: module
 description: 'Installs and integrates the Webform Test Bootstrap theme.'
 package: Testing
-# core: 8.x
+core: 8.x
 dependencies:
   - 'styleguide:styleguide'
   - 'webform:webform'
   - 'webform:webform_bootstrap'
 
-# Information added by Drupal.org packaging script on 2018-02-04
-version: '8.x-5.0-rc3'
-core: '8.x'
+# Information added by Drupal.org packaging script on 2020-01-21
+version: '8.x-5.8'
 project: 'webform'
-datestamp: 1517746089
+datestamp: 1579637592

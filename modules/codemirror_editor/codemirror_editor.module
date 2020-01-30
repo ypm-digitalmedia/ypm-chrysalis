@@ -5,6 +5,21 @@
  * Primary module hooks for CodeMirror editor module.
  */
 
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function codemirror_editor_help($route_name, RouteMatchInterface $route_match) {
+  if ($route_name == 'help.page.codemirror_editor') {
+    $output = '';
+    $output .= '<h3>' . t('About') . '</h3>';
+    $output .= '<p>' . t('This module integrates the CodeMirror editor library into Drupal.') . '</p>';
+    $output .= '<p>' . t('Visit the <a href=":project_link">The CodeMirror editor project pages</a> on Drupal.org for more information.', [':project_link' => 'https://www.drupal.org/project/codemirror_editor']) . '</p>';
+    return $output;
+  }
+}
+
 /**
  * Implements hook_library_info_build().
  */
@@ -21,7 +36,7 @@ function codemirror_editor_library_info_build() {
 function codemirror_editor_js_settings_build(array &$settings) {
   if (isset($settings['codeMirrorEditor'])) {
     $buttons_path = drupal_get_path('module', 'codemirror_editor') . '/images/buttons.svg';
-    $settings['codeMirrorEditor']['buttonsBaseUrl'] = file_create_url($buttons_path);
+    $settings['codeMirrorEditor']['buttonsBaseUrl'] = file_url_transform_relative(file_create_url($buttons_path));
     $config = \Drupal::config('codemirror_editor.settings');
     $settings['codeMirrorEditor']['theme'] = $config->get('theme');
   }
@@ -49,7 +64,6 @@ function codemirror_editor_element_info_alter(array &$info) {
  */
 function codemirror_editor_pre_render_textarea(array $element) {
   if (isset($element['#codemirror'])) {
-    @trigger_error('Attaching CodeMirror to textareas directly is deprecated. Use #type codemirror instead.', E_USER_DEPRECATED);
     $element['#attributes']['data-codemirror'] = json_encode($element['#codemirror']);
     $element['#attached']['library'][] = 'codemirror_editor/editor';
   }

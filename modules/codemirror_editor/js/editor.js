@@ -92,6 +92,7 @@
       // The theme cannot be changed per textarea because this would require
       // loading CSS files for all available themes.
       theme: options.theme,
+      lineWrapping: options.lineWrapping,
       lineNumbers: options.lineNumbers,
       mode: options.mode,
       readOnly: options.readOnly,

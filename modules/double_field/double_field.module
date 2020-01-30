@@ -83,7 +83,7 @@ function double_field_field_storage_config_update(EntityInterface $entity) {
     $second_type_is_changed = $settings['storage']['second']['type'] != $original_settings['storage']['second']['type'];
 
     if ($first_type_is_changed || $second_type_is_changed) {
-      drupal_set_message(t('Since storage type has been changed you need to verify configuration of related widget on manage form display page.'), 'warning');
+      \Drupal::messenger()->addWarning(t('Since storage type has been changed you need to verify configuration of related widget on manage form display page.'));
     }
   }
 

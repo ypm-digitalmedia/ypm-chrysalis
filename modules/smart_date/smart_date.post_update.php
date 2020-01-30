@@ -46,7 +46,7 @@ function smart_date_post_update_translatable_config() {
   }
   // Now ensure defaults are imported.
   // If there are already smart date format entities then nothing is needed.
-  $storage = \Drupal::entityManager()->getStorage('smart_date_format');
+  $storage = \Drupal::entityTypeManager()->getStorage('smart_date_format');
   $existing = $storage->loadMultiple();
   if ($existing) {
     return;

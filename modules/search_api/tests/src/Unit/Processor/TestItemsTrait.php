@@ -11,7 +11,9 @@ use Drupal\search_api\Utility\DataTypeHelper;
 use Drupal\search_api\Utility\FieldsHelper;
 use Drupal\search_api\Item\Item;
 use Drupal\search_api\Query\Query;
+use Drupal\search_api\Utility\QueryHelperInterface;
 use Drupal\search_api\Utility\Utility;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Provides common methods for test cases that need to create search items.
@@ -123,7 +125,9 @@ trait TestItemsTrait {
     $moduleHandler = $this->getMockBuilder('Drupal\Core\Extension\ModuleHandlerInterface')
       ->disableOriginalConstructor()
       ->getMock();
-    $dataTypeHelper = new DataTypeHelper($moduleHandler, $dataTypeManager);
+    $eventDispatcher = $this->getMockBuilder(EventDispatcherInterface::class)
+      ->getMock();
+    $dataTypeHelper = new DataTypeHelper($moduleHandler, $eventDispatcher, $dataTypeManager);
 
     $entityTypeManager = $this->getMockBuilder('Drupal\Core\Entity\EntityTypeManagerInterface')
       ->disableOriginalConstructor()
@@ -136,7 +140,7 @@ trait TestItemsTrait {
       ->getMock();
     $fieldsHelper = new FieldsHelper($entityTypeManager, $entityFieldManager, $entityBundleInfo, $dataTypeHelper);
 
-    $queryHelper = $this->getMock('Drupal\search_api\Utility\QueryHelperInterface');
+    $queryHelper = $this->createMock(QueryHelperInterface::class);
     $queryHelper->method('createQuery')
       ->willReturnCallback(function (IndexInterface $index, array $options = []) {
         return Query::create($index, $options);

@@ -21,6 +21,7 @@ content:
       rows: 5
       placeholder: ''
       toolbar: true
+      lineWrapping: false
       lineNumbers: false
       foldGutter: false
       autoCloseTags: true

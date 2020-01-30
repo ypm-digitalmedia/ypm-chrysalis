@@ -38,7 +38,7 @@ class Table extends Base {
       '#type' => 'checkbox',
       '#title' => $this->t('Enable row number column'),
       '#default_value' => $settings['number_column'],
-      '#attributes' => ['id' => 'number_column'],
+      '#attributes' => ['class' => ['js-double-field-number-column']],
     ];
     $element['number_column_label'] = [
       '#type' => 'textfield',
@@ -46,7 +46,7 @@ class Table extends Base {
       '#size' => 30,
       '#default_value' => $settings['number_column_label'],
       '#states' => [
-        'visible' => ['#number_column' => ['checked' => TRUE]],
+        'visible' => ['.js-double-field-number_column' => ['checked' => TRUE]],
       ],
     ];
     foreach (['first', 'second'] as $subfield) {
@@ -67,13 +67,16 @@ class Table extends Base {
   public function settingsSummary() {
     $settings = $this->getSettings();
 
-    $summary[] = $this->t('Enable row number column: %number_column', ['%number_column' => $settings['number_column'] ? $this->t('yes') : $this->t('no')]);
+    $summary[] = $this->t('Enable row number column: @number_column', ['@number_column' => $settings['number_column'] ? $this->t('yes') : $this->t('no')]);
     if ($settings['number_column']) {
-      $summary[] = $this->t('Number column label: %number_column_label', ['%number_column_label' => $settings['number_column_label']]);
+      $summary[] = $this->t('Number column label: @number_column_label', ['@number_column_label' => $settings['number_column_label']]);
     }
-
-    $summary[] = $this->t('First column label: %first_column_label', ['%first_column_label' => $settings['first_column_label']]);
-    $summary[] = $this->t('Second column label: %second_column_label', ['%second_column_label' => $settings['second_column_label']]);
+    if ($settings['first_column_label'] != '') {
+      $summary[] = $this->t('First column label: @first_column_label', ['@first_column_label' => $settings['first_column_label']]);
+    }
+    if ($settings['second_column_label'] != '') {
+      $summary[] = $this->t('Second column label: @second_column_label', ['@second_column_label' => $settings['second_column_label']]);
+    }
 
     return array_merge($summary, parent::settingsSummary());
   }

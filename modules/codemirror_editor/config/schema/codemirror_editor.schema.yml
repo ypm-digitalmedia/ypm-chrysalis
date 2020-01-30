@@ -45,6 +45,9 @@ field.formatter.settings.codemirror_editor:
     mode:
       type: string
       label: Language mode
+    lineWrapping:
+      type: boolean
+      label: Line wrapping
     lineNumbers:
       type: boolean
       label: Line numbers
@@ -56,6 +59,9 @@ filter_settings.codemirror_editor:
   type: mapping
   label: CodeMirror filter settings
   mapping:
+    lineWrapping:
+      type: boolean
+      label: Line wrapping
     lineNumbers:
       type: boolean
       label: Line numbers
@@ -70,6 +76,9 @@ codemirror_plugin_settings:
     toolbar:
       type: boolean
       label: Load toolbar
+    lineWrapping:
+      type: boolean
+      label: Line wrapping
     lineNumbers:
       type: boolean
       label: Line numbers

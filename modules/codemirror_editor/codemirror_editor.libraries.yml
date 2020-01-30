@@ -11,6 +11,7 @@ editor:
       theme: null
       mode: 'text/html'
       modeSelect: {}
+      lineWrapping: false
       lineNumbers: false
       readOnly: false
       foldGutter: false
@@ -67,6 +68,7 @@ formatter:
       # This value will be set by codemirror_js_settings_build().
       theme: null
       mode: text/html
+      lineWrapping: false
       lineNumbers: true
       readOnly: false
       foldGutter: false

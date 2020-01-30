@@ -59,7 +59,7 @@ class HtmlList extends ListBase {
       }
     }
 
-    $summary[] = $this->t('List type: %list_type', ['%list_type' => $this->getSetting('list_type')]);
+    $summary[] = $this->t('List type: @list_type', ['@list_type' => $this->getSetting('list_type')]);
     return array_merge($summary, $parent_summary);
   }
 

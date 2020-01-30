@@ -41,8 +41,8 @@ To use this, an additional library is necessary, which needs to be put in the
 make sure that the folder name is Sortable (with uppercase S) so that the path
 to the javascript file is /libraries/Sortable/Sortable.min.js.
 
-Due to a known issue (https://github.com/RubaXa/Sortable/pull/1154), either
-version 1.5.1 should be used or the patch from that pull request.
+Use the version 1.10+ as it's tested and approved. Older versions may introduce
+bugs with nested drag & drop functionality.
 
 If the file exists, the feature will automatically be available.
 

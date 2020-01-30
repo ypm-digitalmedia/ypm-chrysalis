@@ -35,10 +35,12 @@ class SettingsForm extends ConfigFormBase {
     $config = $this->config('fiu_ui.settings');
     $moduleHandler = \Drupal::service('module_handler');
 
+    $config_status = $config->get('status');
+
     $form['status'] = [
       '#title' => $this->t('Manage FIU widget'),
       '#type' => 'checkbox',
-      '#default_value' => $config->get('status') ?? 0,
+      '#default_value' => $config_status ? $config_status : 0,
     ];
 
     $form['general'] = [

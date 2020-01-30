@@ -5,9 +5,7 @@ namespace Drupal\paragraphs\Entity;
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
-use Drupal\Core\Render\Element\File;
 use Drupal\paragraphs\ParagraphsBehaviorCollection;
-use Drupal\paragraphs\ParagraphsBehaviorInterface;
 use Drupal\paragraphs\ParagraphsTypeInterface;
 
 /**
@@ -16,7 +14,15 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  * @ConfigEntityType(
  *   id = "paragraphs_type",
  *   label = @Translation("Paragraphs type"),
+ *   label_collection = @Translation("Paragraphs types"),
+ *   label_singular = @Translation("Paragraphs type"),
+ *   label_plural = @Translation("Paragraphs types"),
+ *   label_count = @PluralTranslation(
+ *     singular = "@count Paragraphs type",
+ *     plural = "@count Paragraphs types",
+ *   ),
  *   handlers = {
+ *     "access" = "Drupal\paragraphs\ParagraphsTypeAccessControlHandler",
  *     "list_builder" = "Drupal\paragraphs\Controller\ParagraphsTypeListBuilder",
  *     "form" = {
  *       "add" = "Drupal\paragraphs\Form\ParagraphsTypeForm",
@@ -140,7 +146,30 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
       $this->addDependency($file_icon->getConfigDependencyKey(), $file_icon->getConfigDependencyName());
     }
 
-    return $this->dependencies;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onDependencyRemoval(array $dependencies) {
+    $changed = parent::onDependencyRemoval($dependencies);
+    $behavior_plugins = $this->getBehaviorPlugins();
+    foreach ($dependencies['module'] as $module) {
+      /** @var \Drupal\Component\Plugin\PluginInspectionInterface $plugin */
+      foreach ($behavior_plugins as $instance_id => $plugin) {
+        $definition = (array) $plugin->getPluginDefinition();
+        // If a module providing a behavior plugin is being uninstalled,
+        // remove the plugin and dependency so this paragraph bundle is not
+        // deleted too.
+        if (isset($definition['provider']) && $definition['provider'] === $module) {
+          unset($this->behavior_plugins[$instance_id]);
+          $this->getBehaviorPlugins()->removeInstanceId($instance_id);
+          $changed = TRUE;
+        }
+      }
+    }
+    return $changed;
   }
 
   /**
@@ -170,7 +199,7 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
   public function hasEnabledBehaviorPlugin($plugin_id) {
     $plugins = $this->getBehaviorPlugins();
     if ($plugins->has($plugin_id)) {
-      /** @var ParagraphsBehaviorInterface $plugin */
+      /** @var \Drupal\paragraphs\ParagraphsBehaviorInterface $plugin */
       $plugin = $plugins->get($plugin_id);
       $config = $plugin->getConfiguration();
       return (array_key_exists('enabled', $config) && $config['enabled'] === TRUE);
@@ -212,14 +241,11 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
    *   The file entity's UUID.
    *
    * @return \Drupal\file\FileInterface|null
-   *  The file entity. NULL if the UUID is invalid.
+   *   The file entity. NULL if the UUID is invalid.
    */
   protected function getFileByUuid($uuid) {
-    $files = $this->entityTypeManager()
-      ->getStorage('file')
-      ->loadByProperties(['uuid' => $uuid]);
-    if ($files) {
-      return current($files);
+    if ($id = \Drupal::service('paragraphs_type.uuid_lookup')->get($uuid)) {
+      return $this->entityTypeManager()->getStorage('file')->load($id);
     }
 
     return NULL;

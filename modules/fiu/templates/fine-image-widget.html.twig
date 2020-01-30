@@ -13,30 +13,30 @@
  */
 #}
 {% if info %}
-  <div class="fiu-image-info">
+  <div class="fiu-image-info" id="{{ data.id }}">
     <div class="fiu-full-image">
       <div class="inner-fiu-full-image">
         <img src="{{ info.url.value }}">
         <div class="fiu-img-description">
-        <ul>
-          {% for row in info|without('url') %}
-            {% if row %}
-              <li>
-                <b>{{ row.title }} :</b>
-                {{ row.value }}
-              </li>
+          <ul>
+            {% for row in info|without('url') %}
+              {% if row %}
+                <li>
+                  <b>{{ row.title }} :</b>
+                  {{ row.value }}
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+          <div class="attr">
+            {% if data.alt %}
+              {{ data.alt }}
             {% endif %}
-          {% endfor %}
-        </ul>
-        <div class="attr">
-          {% if data.alt %}
-            {{ data.alt }}
-          {% endif %}
 
-          {% if data.title %}
-            {{ data.title }}
-          {% endif %}
-        </div>
+            {% if data.title %}
+              {{ data.title }}
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
@@ -56,14 +56,14 @@
     </div>
   {% endif %}
 
- {# Render widget data without the image preview that was output already. #}
+  {# Render widget data without the image preview that was output already. #}
   <div class="fine-image-data">
     {% if details %}
-      <span class="fiu-image-details">
+      <span class="fiu-image-details" data-fiu-id="{{ data.id }}">
         {{ details }}
       </span>
     {% endif %}
 
-    {{ data|without('preview', 'title', 'alt') }}
+    {{ data|without('preview', 'title', 'alt', 'id') }}
   </div>
 </div>

@@ -2,20 +2,20 @@
 
 namespace Drupal\url_redirect\EventSubscriber;
 
-use Drupal\Core\Entity\EntityTypeManager;
-use Drupal\Core\Path\PathMatcher;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
-use Drupal\Core\Path\CurrentPathStack;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
-use \Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\Query\QueryFactory;
+use Drupal\Core\Path\CurrentPathStack;
+use Drupal\Core\Path\PathMatcher;
+use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\Core\Session\AccountProxy;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationManager;
-use Drupal\Core\Entity\Query\QueryFactory;
-use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 class RedirectSubscriber implements EventSubscriberInterface {
 
@@ -38,9 +38,9 @@ class RedirectSubscriber implements EventSubscriberInterface {
   /**
    * Entity type manager service.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManager
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityTypeManager;
+  protected $entityTypeManagerInterface;
 
   /**
    * Current user service.
@@ -63,7 +63,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
    *  Current path stack service.
    * @param \Drupal\Core\Path\PathMatcher $pathMatcher
    *  Path matcher service.
-   * @param \Drupal\Core\Entity\EntityTypeManager $entityTypeManager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManagerInterface
    *  Entity type manager service.
    * @param \Drupal\Core\Session\AccountProxy $currentUser
    *  Current user service.
@@ -72,10 +72,10 @@ class RedirectSubscriber implements EventSubscriberInterface {
    * @param \Drupal\Core\Entity\Query\QueryFactory $queryFactory
    *  Entity query service.
    */
-  public function __construct(CurrentPathStack $currentPathStack, PathMatcher $pathMatcher, EntityTypeManager $entityTypeManager, AccountProxy $currentUser, TranslationManager $stringTranslation, QueryFactory $queryFactory) {
+  public function __construct(CurrentPathStack $currentPathStack, PathMatcher $pathMatcher, EntityTypeManagerInterface $entityTypeManagerInterface, AccountProxy $currentUser, TranslationManager $stringTranslation, QueryFactory $queryFactory) {
     $this->currentPathStack = $currentPathStack;
     $this->pathMatcher = $pathMatcher;
-    $this->entityTypeManager = $entityTypeManager;
+    $this->entityTypeManagerInterface = $entityTypeManagerInterface;
     $this->currentUser = $currentUser;
     $this->stringTranslation = $stringTranslation;
     $this->queryFactory = $queryFactory;
@@ -126,10 +126,13 @@ class RedirectSubscriber implements EventSubscriberInterface {
     global $base_url;
     $path_matches = FALSE;
     // Check URL path in url_redirect entity.
-    $path = ($this->pathMatcher->isFrontPage()) ? Html::escape('<front>') : HTML::escape($event->getRequest()->getRequestUri());
+    $path = HTML::escape($event->getRequest()->getRequestUri());
+    if ($path == '/') {
+      $path = '<front>';
+    }
     $wildcards = $this->getPatterns();
     foreach ($wildcards as $wildcard_path) {
-      $wildcard_path_load = $this->entityTypeManager->getStorage('url_redirect')->load($wildcard_path);
+      $wildcard_path_load = $this->entityTypeManagerInterface->getStorage('url_redirect')->load($wildcard_path);
       $path_matches = \Drupal::service('path.matcher')->matchPath($path, $wildcard_path_load->get_path());
       if ($path_matches) {
         $wildcard_path_key = $wildcard_path;
@@ -147,7 +150,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
       }
       $successful_redirect = FALSE;
       /** @var \Drupal\url_redirect\Entity\UrlRedirect $url_redirect_load */
-      $url_redirect_load = $this->entityTypeManager->getStorage('url_redirect')->load($id[0]);
+      $url_redirect_load = $this->entityTypeManagerInterface->getStorage('url_redirect')->load($id[0]);
       $check_for = $url_redirect_load->get_checked_for();
       // Check for Role.
       if ($check_for == 'Role') {
@@ -162,7 +165,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
           }
           else {
             if (empty($url_redirect_load->get_redirect_path()) || ($url_redirect_load->get_redirect_path() == '<front>')) {
-              $event->setResponse(new TrustedRedirectResponse($base_url, 301));
+              $event->setResponse(new TrustedRedirectResponse('<front>', 301));
             }
             else {
               $event->setResponse(new TrustedRedirectResponse($base_url . '/' . $url_redirect_load->get_redirect_path(), 301));
@@ -184,7 +187,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
             }
             else {
               if (empty($url_redirect_load->get_redirect_path()) || ($url_redirect_load->get_redirect_path() == '<front>')) {
-                $event->setResponse(new TrustedRedirectResponse($base_url, 301));
+                $event->setResponse(new TrustedRedirectResponse('<front>', 301));
               }
               else {
                 $event->setResponse(new TrustedRedirectResponse($base_url . '/' . $url_redirect_load->get_redirect_path(), 301));

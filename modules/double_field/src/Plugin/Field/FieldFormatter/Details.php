@@ -47,7 +47,7 @@ class Details extends Base {
    */
   public function settingsSummary() {
     $open = $this->getSetting('open');
-    $summary[] = $this->t('Open: %open', ['%open' => $open ? $this->t('yes') : $this->t('no')]);
+    $summary[] = $this->t('Open: @open', ['@open' => $open ? $this->t('yes') : $this->t('no')]);
     return array_merge($summary, parent::settingsSummary());
   }
 

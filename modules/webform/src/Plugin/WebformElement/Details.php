@@ -22,8 +22,18 @@ class Details extends ContainerBase {
    */
   public function getDefaultProperties() {
     return [
+      // Description/Help.
       'help' => '',
+      'help_title' => '',
+      'description' => '',
+      'more' => '',
+      'more_title' => '',
+      // Title.
+      'title_display' => '',
+      'help_display' => '',
+      // Details.
       'open' => FALSE,
+      'summary_attributes' => [],
     ] + parent::getDefaultProperties();
   }
 
@@ -36,6 +46,8 @@ class Details extends ContainerBase {
     if (isset($element['#webform_key'])) {
       $element['#attributes']['data-webform-key'] = $element['#webform_key'];
     }
+
+    $element['#attached']['library'][] = 'webform/webform.element.details';
   }
 
   /**

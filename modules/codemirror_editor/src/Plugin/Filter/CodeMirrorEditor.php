@@ -16,6 +16,7 @@ use Drupal\filter\Plugin\FilterBase;
  *   title = @Translation("CodeMirror"),
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
  *   settings = {
+ *     "lineWrapping" = false,
  *     "lineNumbers" = true,
  *     "foldGutter" = false
  *   }
@@ -29,7 +30,7 @@ class CodeMirrorEditor extends FilterBase {
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-    $keys = ['lineNumbers', 'foldGutter'];
+    $keys = ['lineWrapping', 'lineNumbers', 'foldGutter'];
     return self::buildCodeMirrorSettingsForm($this->settings, $keys);
   }
 

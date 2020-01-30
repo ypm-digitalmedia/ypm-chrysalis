@@ -50,9 +50,9 @@ function viewsreference_module_implements_alter(&$implementations, $hook) {
 }
 
 /**
- * Implements hook_views_pre_build().
+ * Implements hook_views_pre_view().
  */
-function viewsreference_views_pre_build(ViewExecutable $view) {
+function viewsreference_views_pre_view(ViewExecutable $view, $display_id, array &$args) {
   if (!isset($view->element['#viewsreference']) && empty($view->getRequest()->request->get('viewsreference'))) {
     return;
   }
@@ -68,13 +68,15 @@ function viewsreference_views_pre_build(ViewExecutable $view) {
   // Let all settings plugins alter the view.
   $viewsreference_plugin_manager = \Drupal::service('plugin.manager.viewsreference.setting');
   $plugin_definitions = $viewsreference_plugin_manager->getDefinitions();
-  foreach ($view->element['#viewsreference']['enabled_settings'] as $enabled_setting) {
-    if (!empty($plugin_definitions[$enabled_setting])) {
-      $plugin_definition = $plugin_definitions[$enabled_setting];
-      /** @var \Drupal\viewsreference\Plugin\ViewsReferenceSettingInterface $plugin_instance */
-      $plugin_instance = $viewsreference_plugin_manager->createInstance($plugin_definition['id']);
-      $value = isset($view->element['#viewsreference']['data'][$plugin_definition['id']]) ? $view->element['#viewsreference']['data'][$plugin_definition['id']] : $plugin_definition['default_value'];
-      $plugin_instance->alterView($view, $value);
+  if (isset($view->element['#viewsreference']['enabled_settings'])) {
+    foreach ($view->element['#viewsreference']['enabled_settings'] as $enabled_setting) {
+      if (!empty($plugin_definitions[$enabled_setting])) {
+        $plugin_definition = $plugin_definitions[$enabled_setting];
+        /** @var \Drupal\viewsreference\Plugin\ViewsReferenceSettingInterface $plugin_instance */
+        $plugin_instance = $viewsreference_plugin_manager->createInstance($plugin_definition['id']);
+        $value = isset($view->element['#viewsreference']['data'][$plugin_definition['id']]) ? $view->element['#viewsreference']['data'][$plugin_definition['id']] : $plugin_definition['default_value'];
+        $plugin_instance->alterView($view, $value);
+      }
     }
   }
 }

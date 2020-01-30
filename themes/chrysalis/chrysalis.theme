@@ -96,7 +96,7 @@ function chrysalis_preprocess_paragraph(&$variables) {
     $variables['#cache']['contexts'][] = 'url.path.is_front';
 
     $node = \Drupal::request()->attributes->get('node');
-    $variables['nodetitle'] = $node->getTitle();
+    // $variables['nodetitle'] = $node->getTitle();
     $variables['node'] = $node;
     // $ref = $node->field_paragraphs_content->referencedEntities();
 

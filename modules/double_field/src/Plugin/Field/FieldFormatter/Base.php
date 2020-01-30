@@ -76,7 +76,7 @@ abstract class Base extends FormatterBase {
 
       if ($type == 'datetime_iso8601') {
         $format_types = DateFormat::loadMultiple();
-        $date_formatter = \Drupal::service('date.formatter');
+        $date_formatter = self::getDateFormatter();
         $time = new DrupalDateTime();
         $options = [];
         foreach ($format_types as $type => $type_info) {
@@ -105,16 +105,24 @@ abstract class Base extends FormatterBase {
       ];
       $element[$subfield]['prefix'] = [
         '#type' => 'textfield',
-        '#title' => $this->t('Prefix'),
+        '#title' => $this->t('Prefix (deprecated)'),
         '#size' => 30,
         '#default_value' => $settings[$subfield]['prefix'],
       ];
       $element[$subfield]['suffix'] = [
         '#type' => 'textfield',
-        '#title' => $this->t('Suffix'),
+        '#title' => $this->t('Suffix (deprecated)'),
         '#size' => 30,
         '#default_value' => $settings[$subfield]['suffix'],
       ];
+
+      // BC Layer. The settings below may not be set if site was updated from
+      // version below 3.3.
+      // @todo Remove this in 4.0.
+      $default_settings = self::defaultSettings()[$subfield];
+      $settings[$subfield]['scale'] = $settings[$subfield]['scale'] ?? $default_settings['scale'];
+      $settings[$subfield]['decimal_separator'] = $settings[$subfield]['decimal_separator'] ?? $default_settings['decimal_separator'];
+      $settings[$subfield]['thousand_separator'] = $settings[$subfield]['thousand_separator'] ?? $default_settings['thousand_separator'];
 
       if ($type == 'numeric' || $type == 'float' || $type == 'integer') {
         $options = [
@@ -191,16 +199,20 @@ abstract class Base extends FormatterBase {
         ]
       );
       if ($subfield_type == 'datetime_iso8601') {
-        $summary[] = $this->t('Date format: %format', ['%format' => $settings[$subfield]['format_type']]);
+        $summary[] = $this->t('Date format: @format', ['@format' => $settings[$subfield]['format_type']]);
       }
       if (in_array($subfield_type, static::$linkTypes)) {
-        $summary[] = $this->t('Link: %value', ['%value' => $settings[$subfield]['link'] ? $this->t('yes') : $this->t('no')]);
+        $summary[] = $this->t('Link: @value', ['@value' => $settings[$subfield]['link'] ? $this->t('yes') : $this->t('no')]);
       }
-      $summary[] = $this->t('Hidden: %value', ['%value' => $settings[$subfield]['hidden'] ? $this->t('yes') : $this->t('no')]);
-      $summary[] = $this->t('Prefix: %prefix', ['%prefix' => $settings[$subfield]['prefix']]);
-      $summary[] = $this->t('Suffix: %suffix', ['%suffix' => $settings[$subfield]['suffix']]);
+      $summary[] = $this->t('Hidden: @value', ['@value' => $settings[$subfield]['hidden'] ? $this->t('yes') : $this->t('no')]);
+      if ($settings[$subfield]['prefix'] != '') {
+        $summary[] = $this->t('Prefix (deprecated): @prefix', ['@prefix' => $settings[$subfield]['prefix']]);
+      }
+      if ($settings[$subfield]['suffix'] != '') {
+        $summary[] = $this->t('Suffix (deprecated): @suffix', ['@suffix' => $settings[$subfield]['suffix']]);
+      }
       if ($subfield_type == 'numeric' || $subfield_type == 'float' || $subfield_type == 'integer') {
-        $summary[] = $this->t('Number format: %format', ['%format' => $this->numberFormat($subfield, 1234.1234567890)]);
+        $summary[] = $this->t('Number format: @format', ['@format' => $this->numberFormat($subfield, 1234.1234567890)]);
       }
     }
 
@@ -233,6 +245,16 @@ abstract class Base extends FormatterBase {
     $field_settings = $this->getFieldSettings();
     $settings = $this->getSettings();
 
+    // @todo Remove this in 4.0.
+    foreach (['first', 'second'] as $subfield) {
+      if ($settings[$subfield]['prefix']) {
+        @trigger_error('Prefix formatter setting is deprecated in double_field:8.x-3.4 and will be removed in double_field:8.x-4.0.', E_USER_DEPRECATED);
+      }
+      if ($settings[$subfield]['suffix']) {
+        @trigger_error('Suffix formatter setting is deprecated in double_field:8.x-3.4 and will be removed in double_field:8.x-4.0.', E_USER_DEPRECATED);
+      }
+    }
+
     foreach ($items as $delta => $item) {
       foreach (['first', 'second'] as $subfield) {
 
@@ -252,21 +274,20 @@ abstract class Base extends FormatterBase {
           }
 
           if ($type == 'datetime_iso8601' && $item->{$subfield} && !$field_settings[$subfield]['list']) {
-            $storage_format = $field_settings['storage'][$subfield]['datetime_type'] == 'datetime'
-              ? DoubleFieldItem::DATETIME_DATETIME_STORAGE_FORMAT
-              : DoubleFieldItem::DATETIME_DATE_STORAGE_FORMAT;
-
-            $date = DrupalDateTime::createFromFormat($storage_format, $item->{$subfield});
-            $date_formatter = \Drupal::service('date.formatter');
-            $timestamp = $date->getTimestamp();
-            $formatted_date = $date_formatter->format($timestamp, $settings[$subfield]['format_type']);
-            $iso_date = $date_formatter->format($timestamp, 'custom', 'Y-m-d\TH:i:s') . 'Z';
+            // We follow the same principles as Drupal Core.
+            // In the case of a datetime subfield, the date must be parsed using
+            // the storage time zone and converted to the user's time zone while
+            // a date-only field should have no timezone conversion performed.
+            $timezone = $field_settings['storage'][$subfield]['datetime_type'] === 'datetime' ?
+              date_default_timezone_get() : DoubleFieldItem::DATETIME_STORAGE_TIMEZONE;
+            $timestamp = $items[$delta]->createDate($subfield)->getTimestamp();
+            $date_formatter = self::getDateFormatter();
             $item->{$subfield} = [
               '#theme' => 'time',
-              '#text' => $formatted_date,
+              '#text' => $date_formatter->format($timestamp, $settings[$subfield]['format_type'], '', $timezone),
               '#html' => FALSE,
               '#attributes' => [
-                'datetime' => $iso_date,
+                'datetime' => $date_formatter->format($timestamp, 'custom', 'Y-m-d\TH:i:s') . 'Z',
               ],
               '#cache' => [
                 'contexts' => [
@@ -330,11 +351,27 @@ abstract class Base extends FormatterBase {
    * {@inheritdoc}
    */
   protected function numberFormat($subfield, $number) {
-    $settings = $this->getSettings()[$subfield];
+    $settings = $this->getSetting($subfield);
     if ($this->getFieldSetting('storage')[$subfield]['type'] == 'integer') {
       $settings['scale'] = 0;
     }
+
+    // BC Layer. The settings below may not be set if site was updated from
+    // version below 3.3.
+    // @todo Remove this in 4.0.
+    $default_settings = self::defaultSettings()[$subfield];
+    $settings['scale'] = $settings['scale'] ?? $default_settings['scale'];
+    $settings['decimal_separator'] = $settings['decimal_separator'] ?? $default_settings['decimal_separator'];
+    $settings['thousand_separator'] = $settings['thousand_separator'] ?? $default_settings['thousand_separator'];
+
     return number_format($number, $settings['scale'], $settings['decimal_separator'], $settings['thousand_separator']);
+  }
+
+  /**
+   * Returns date formatter.
+   */
+  protected static function getDateFormatter() {
+    return \Drupal::service('date.formatter');
   }
 
 }

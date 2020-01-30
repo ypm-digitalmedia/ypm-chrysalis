@@ -9,6 +9,7 @@ format: codemirror
 editor: codemirror_editor
 settings:
   toolbar: true
+  lineWrapping: false
   lineNumbers: false
   foldGutter: false
   autoCloseTags: true

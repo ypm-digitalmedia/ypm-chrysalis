@@ -8,3 +8,8 @@ tabs:
     js/tabs.js: {}
   dependencies:
     - core/jquery.ui.tabs
+
+widget:
+  css:
+    theme:
+      css/widget.css: {}

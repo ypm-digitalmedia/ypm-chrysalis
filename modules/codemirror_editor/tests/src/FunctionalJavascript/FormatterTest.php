@@ -12,6 +12,11 @@ class FormatterTest extends TestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'classy';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'field_ui',
   ];
@@ -44,6 +49,7 @@ class FormatterTest extends TestBase {
     // Default formatter settings.
     $formatter_settings = [
       'mode' => 'text/html',
+      'lineWrapping' => TRUE,
       'lineNumbers' => TRUE,
       'foldGutter' => FALSE,
     ];
@@ -61,11 +67,13 @@ class FormatterTest extends TestBase {
 
     $formatter_settings = [
       'mode' => 'application/xml',
+      'lineWrapping' => FALSE,
       'lineNumbers' => FALSE,
       'foldGutter' => TRUE,
     ];
 
     $this->updateFormatterSettingField('mode', $formatter_settings['mode']);
+    $this->updateFormatterSettingField('lineWrapping', $formatter_settings['lineWrapping']);
     $this->updateFormatterSettingField('lineNumbers', $formatter_settings['lineNumbers']);
     $this->updateFormatterSettingField('foldGutter', $formatter_settings['foldGutter']);
 
@@ -88,6 +96,7 @@ class FormatterTest extends TestBase {
    */
   protected function assertFormatter(array $formatter_settings) {
     $this->assertEditorOption('mode', $formatter_settings['mode']);
+    $this->assertEditorOption('lineWrapping', $formatter_settings['lineWrapping']);
     $this->assertEditorOption('lineNumbers', $formatter_settings['lineNumbers']);
     $this->assertEditorOption('foldGutter', $formatter_settings['foldGutter']);
   }
@@ -97,6 +106,7 @@ class FormatterTest extends TestBase {
    */
   protected function assertFormatterSettingsSummary(array $formatter_settings) {
     $expected_summary[] = 'Language mode: ' . $formatter_settings['mode'];
+    $expected_summary[] = 'Line wrapping: ' . ($formatter_settings['lineWrapping'] ? 'Yes' : 'No');
     $expected_summary[] = 'Line numbers: ' . ($formatter_settings['lineNumbers'] ? 'Yes' : 'No');
     $expected_summary[] = 'Fold gutter: ' . ($formatter_settings['foldGutter'] ? 'Yes' : 'No');
 
@@ -117,6 +127,10 @@ class FormatterTest extends TestBase {
 
     $xpath = '//select[@name = "fields[field_code][settings_edit_form][settings][mode]"]/optgroup/option[@value = "text/html" and @selected]';
     $xpath = sprintf($xpath, $formatter_settings['mode']);
+    $assert_session->elementExists('xpath', $xpath, $settings_wrapper);
+
+    $xpath = '//input[@name = "fields[field_code][settings_edit_form][settings][lineWrapping]" and %s]';
+    $xpath = sprintf($xpath, $formatter_settings['lineWrapping'] ? '@checked = "checked"' : 'not(@checked)');
     $assert_session->elementExists('xpath', $xpath, $settings_wrapper);
 
     $xpath = '//input[@name = "fields[field_code][settings_edit_form][settings][lineNumbers]" and %s]';

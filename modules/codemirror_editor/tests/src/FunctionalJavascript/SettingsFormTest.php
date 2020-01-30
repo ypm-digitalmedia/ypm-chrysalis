@@ -31,7 +31,7 @@ class SettingsFormTest extends TestBase {
     $assert_session->elementExists('xpath', '//select[@name = "theme"]/option[@value = "default" and @selected]');
 
     $all_checkboxes = $page->findAll('xpath', '//table[@id = "edit-language-modes"]//input[@type = "checkbox"]');
-    self::assertCount(12, $all_checkboxes);
+    self::assertCount(13, $all_checkboxes);
 
     /** @var \Behat\Mink\Element\NodeElement[] $checked_checkboxes */
     $checked_checkboxes = $page->findAll('xpath', '//table[@id = "edit-language-modes"]//input[@type = "checkbox" and @checked]');
@@ -40,7 +40,7 @@ class SettingsFormTest extends TestBase {
     self::assertEquals('language_modes[xml]', $checked_checkboxes[0]->getAttribute('name'));
 
     // Check PHP row.
-    $php_row_xpath = '//table[@id = "edit-language-modes"]//tr[5]';
+    $php_row_xpath = '//table[@id = "edit-language-modes"]//tr[6]';
     $php_row_xpath .= '/td[//input[@type = "checkbox" and @name = "language_modes[php]" and not(@checked)]]';
     $php_row_xpath .= '/following-sibling::td[a[text() = "PHP" and @href = "https://codemirror.net/mode/php/index.html"]]';
     $php_row_xpath .= '/following-sibling::td[text() = "text/x-php, application/x-httpd-php"]';

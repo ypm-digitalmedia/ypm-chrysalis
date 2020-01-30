@@ -6,8 +6,8 @@ package: Media
 dependencies:
   - drupal:image
 
-# Information added by Drupal.org packaging script on 2017-07-29
-version: '8.x-2.1-alpha3'
+# Information added by Drupal.org packaging script on 2019-06-03
+version: '8.x-2.1-alpha6'
 core: '8.x'
 project: 'fiu'
-datestamp: 1501360145
+datestamp: 1559554988

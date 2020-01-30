@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Render\Element;
+use Drupal\Component\Utility\Random;
 
 /**
  * Prepares variables for fine image widget templates.
@@ -29,6 +30,11 @@ function template_preprocess_fine_image_widget(array &$variables) {
   ];
 
   $variables['data'] = [];
+
+  // Add unique id to the field widget.
+  $random = new Random();
+  $variables['data']['id'] = 'fiu-id-' . $random->string(4);
+
   foreach (Element::children($element) as $child) {
     $variables['data'][$child] = $element[$child];
 
@@ -60,7 +66,7 @@ function template_preprocess_fine_image_widget(array &$variables) {
 
         $variables['info']['url'] = [
           'title' => t('Image url'),
-          'value' => $file->url(),
+          'value' => file_create_url($file->getFileUri()),
         ];
       }
 

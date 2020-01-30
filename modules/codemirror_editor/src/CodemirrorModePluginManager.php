@@ -10,10 +10,10 @@ use Drupal\Core\Plugin\Discovery\YamlDiscovery;
 use Drupal\Core\Plugin\Factory\ContainerFactory;
 
 /**
- * Defines a plugin manager to deal with codemirror_modes.
+ * Defines a plugin manager to deal with CodeMirror modes.
  *
- * Modules can define codemirror_modes in a MODULE_NAME.codemirror_modes.yml
- * file contained in the module's base directory. Each CodeMirror mode has the
+ * Modules can define CodeMirror modes in a MODULE_NAME.codemirror_modes.yml
+ * file located in the module's base directory. Each CodeMirror mode has the
  * following structure:
  *
  * @code

@@ -30,6 +30,7 @@ class CodemirrorEditorFormatter extends FormatterBase {
   public static function defaultSettings() {
     return [
       'mode' => 'text/html',
+      'lineWrapping' => FALSE,
       'lineNumbers' => TRUE,
       'foldGutter' => FALSE,
     ];
@@ -39,7 +40,7 @@ class CodemirrorEditorFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-    $keys = ['mode', 'lineNumbers', 'foldGutter'];
+    $keys = ['mode', 'lineWrapping', 'lineNumbers', 'foldGutter'];
     return self::buildCodeMirrorSettingsForm($this->getSettings(), $keys);
   }
 
@@ -48,6 +49,7 @@ class CodemirrorEditorFormatter extends FormatterBase {
    */
   public function settingsSummary() {
     $summary[] = $this->t('Language mode: @mode', ['@mode' => $this->getSetting('mode')]);
+    $summary[] = $this->t('Line wrapping: @lineWrapping', ['@lineWrapping' => $this->formatBoolean('lineWrapping')]);
     $summary[] = $this->t('Line numbers: @lineNumbers', ['@lineNumbers' => $this->formatBoolean('lineNumbers')]);
     $summary[] = $this->t('Fold gutter: @foldGutter', ['@foldGutter' => $this->formatBoolean('foldGutter')]);
     return $summary;

@@ -104,7 +104,18 @@ class ViewsReferenceFieldFormatter extends FormatterBase {
             ];
           }
         }
-        $elements[$delta]['contents'] = $view->buildRenderable($display_id, $view->args, FALSE);
+
+        $render_array = $view->buildRenderable($display_id, $view->args, FALSE);
+
+        // The views_add_contextual_links() function needs the following
+        // information in the render array in order to attach the contextual
+        // links to the view.
+        $render_array['#view_id'] = $view->storage->id();
+        $render_array['#view_display_show_admin_links'] = $view->getShowAdminLinks();
+        $render_array['#view_display_plugin_id'] = $view->getDisplay()->getPluginId();
+        views_add_contextual_links($render_array, $render_array['#view_display_plugin_id'], $display_id);
+
+        $elements[$delta]['contents'] = $render_array;
       }
     }
     return $elements;

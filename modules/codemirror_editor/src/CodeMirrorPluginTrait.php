@@ -17,6 +17,7 @@ trait CodeMirrorPluginTrait {
     return [
       'mode' => 'text/html',
       'toolbar' => TRUE,
+      'lineWrapping' => FALSE,
       'lineNumbers' => FALSE,
       'foldGutter' => FALSE,
       'autoCloseTags' => TRUE,
@@ -64,6 +65,14 @@ trait CodeMirrorPluginTrait {
         '#title' => t('Load toolbar'),
         '#type' => 'checkbox',
         '#default_value' => $settings['toolbar'],
+      ];
+    }
+
+    if (!$keys || in_array('lineWrapping', $keys)) {
+      $form['lineWrapping'] = [
+        '#title' => t('Line wrapping'),
+        '#type' => 'checkbox',
+        '#default_value' => $settings['lineWrapping'],
       ];
     }
 

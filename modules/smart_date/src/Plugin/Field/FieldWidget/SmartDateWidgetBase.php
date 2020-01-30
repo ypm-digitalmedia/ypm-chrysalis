@@ -117,7 +117,9 @@ class SmartDateWidgetBase extends DateTimeWidgetBase {
       }
       if ($item['duration'] == 'custom') {
         // If using a custom duration, calculate based on start and end times.
-        $item['duration'] = (int) ($item['end_value'] - $item['value']) / 60;
+        if(isset($start_time) && isset($end_time) && $start_time instanceof DrupalDateTime && $end_time instanceof DrupalDateTime) {
+          $item['duration'] = (int) ($item['end_value'] - $item['value']) / 60;
+        }
       }
     }
 

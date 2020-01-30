@@ -38,7 +38,7 @@ class SmartDateFormatSettingsForm extends FormBase {
       }
     }
     $config->save();
-    drupal_set_message($this->t('Configuration was saved.'));
+    $this->messenger()->addMessage($this->t('Configuration was saved.'));
   }
 
   /**

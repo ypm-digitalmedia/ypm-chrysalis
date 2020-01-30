@@ -16,7 +16,7 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
  *
  * @FieldWidget(
  *   id = "double_field",
- *   label = @Translation("Double field"),
+ *   label = @Translation("Double Field"),
  *   field_types = {"double_field"}
  * )
  */
@@ -29,7 +29,10 @@ class DoubleField extends WidgetBase {
 
     foreach (['first', 'second'] as $subfield) {
       $settings[$subfield] = [
-        'type' => 'textfield',
+        // As this method is static there is no way to set an appropriate type
+        // for the subwidget. Let self::getSettings() do it instead.
+        'type' => NULL,
+        'label_display' => 'block',
         'prefix' => '',
         'suffix' => '',
         'size' => 10,
@@ -81,6 +84,20 @@ class DoubleField extends WidgetBase {
         '#default_value' => $settings[$subfield]['type'],
         '#required' => TRUE,
         '#options' => $this->getSubwidgets($type, $field_settings[$subfield]['list']),
+      ];
+
+      $element[$subfield]['label_display'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Label display'),
+        '#default_value' => $settings[$subfield]['label_display'],
+        '#required' => TRUE,
+        '#options' => [
+          'block' => $this->t('Block'),
+          'inline' => $this->t('Inline'),
+          'invisible' => $this->t('Invisible'),
+          'hidden' => $this->t('Hidden'),
+        ],
+        '#access' => self::isLabelSupported($settings[$subfield]['type']),
       ];
 
       $type_selector = "select[name='fields[$field_name][settings_edit_form][settings][$subfield][type]'";
@@ -148,13 +165,13 @@ class DoubleField extends WidgetBase {
 
       $element[$subfield]['prefix'] = [
         '#type' => 'textfield',
-        '#title' => $this->t('Prefix'),
+        '#title' => $this->t('Prefix (deprecated)'),
         '#default_value' => $settings[$subfield]['prefix'],
       ];
 
       $element[$subfield]['suffix'] = [
         '#type' => 'textfield',
-        '#title' => $this->t('Suffix'),
+        '#title' => $this->t('Suffix (deprecated)'),
         '#default_value' => $settings[$subfield]['suffix'],
       ];
     }
@@ -187,31 +204,42 @@ class DoubleField extends WidgetBase {
         ]
       );
 
-      $summary[] = $this->t('Widget: %type', ['%type' => $settings[$subfield]['type']]);
+      $summary[] = $this->t('Widget: @type', ['@type' => $settings[$subfield]['type']]);
+      if (self::isLabelSupported($settings[$subfield]['type'])) {
+        $summary[] = $this->t('Label display: @label', ['@label' => $settings[$subfield]['label_display']]);
+      }
       switch ($settings[$subfield]['type']) {
         case 'textfield':
         case 'email':
         case 'tel':
         case 'url':
-          $summary[] = $this->t('Size: %size', ['%size' => $settings[$subfield]['size']]);
-          $summary[] = $this->t('Placeholder: %placeholder', ['%placeholder' => $settings[$subfield]['placeholder']]);
+          $summary[] = $this->t('Size: @size', ['@size' => $settings[$subfield]['size']]);
+          if ($settings[$subfield]['placeholder'] != '') {
+            $summary[] = $this->t('Placeholder: @placeholder', ['@placeholder' => $settings[$subfield]['placeholder']]);
+          }
           break;
 
         case 'checkbox':
-          $summary[] = $this->t('Label: %label', ['%label' => $settings[$subfield]['label']]);
+          $summary[] = $this->t('Label: @label', ['@label' => $settings[$subfield]['label']]);
           break;
 
         case 'select':
           break;
 
         case 'textarea':
-          $summary[] = $this->t('Columns: %cols', ['%cols' => $settings[$subfield]['cols']]);
-          $summary[] = $this->t('Rows: %rows', ['%rows' => $settings[$subfield]['rows']]);
-          $summary[] = $this->t('Placeholder: %placeholder', ['%placeholder' => $settings[$subfield]['placeholder']]);
+          $summary[] = $this->t('Columns: @cols', ['@cols' => $settings[$subfield]['cols']]);
+          $summary[] = $this->t('Rows: @rows', ['@rows' => $settings[$subfield]['rows']]);
+          if ($settings[$subfield]['placeholder'] != '') {
+            $summary[] = $this->t('Placeholder: @placeholder', ['@placeholder' => $settings[$subfield]['placeholder']]);
+          }
           break;
       }
-      $summary[] = $this->t('Prefix: %prefix', ['%prefix' => $settings[$subfield]['prefix']]);
-      $summary[] = $this->t('Suffix: %suffix', ['%suffix' => $settings[$subfield]['suffix']]);
+      if ($settings[$subfield]['prefix'] != '') {
+        $summary[] = $this->t('Prefix (deprecated): @prefix', ['@prefix' => $settings[$subfield]['prefix']]);
+      }
+      if ($settings[$subfield]['suffix'] != '') {
+        $summary[] = $this->t('Suffix (deprecated): @suffix', ['@suffix' => $settings[$subfield]['suffix']]);
+      }
     }
 
     return $summary;
@@ -228,24 +256,50 @@ class DoubleField extends WidgetBase {
     $widget = [
       '#theme_wrappers' => ['container', 'form_element'],
       '#attributes' => ['class' => ['double-field-elements']],
+      '#attached' => [
+        'library' => 'double_field/widget',
+      ],
     ];
 
     if ($settings['inline']) {
-      $widget['#attributes']['class'][] = 'container-inline';
+      $widget['#attributes']['class'][] = 'double-field-widget-inline';
     }
 
     foreach (['first', 'second'] as $subfield) {
+
+      // @todo Remove this in 4.0.
+      if ($settings[$subfield]['prefix']) {
+        @trigger_error('Prefix widget setting is deprecated in double_field:8.x-3.4 and will be removed in double_field:8.x-4.0.', E_USER_DEPRECATED);
+      }
+      if ($settings[$subfield]['suffix']) {
+        @trigger_error('Suffix widget setting is deprecated in double_field:8.x-3.4 and will be removed in double_field:8.x-4.0.', E_USER_DEPRECATED);
+      }
+
       $widget[$subfield] = [
         '#type' => $settings[$subfield]['type'],
         '#prefix' => $settings[$subfield]['prefix'],
         '#suffix' => $settings[$subfield]['suffix'],
         '#default_value' => isset($items[$delta]->{$subfield}) ? $items[$delta]->{$subfield} : NULL,
         '#subfield_settings' => $settings[$subfield],
+        '#wrapper_attributes' => ['class' => ['double-field-subfield-form-item']],
       ];
+
+      $label_display = $settings[$subfield]['label_display'];
+      $label = $field_settings[$subfield]['label'];
+      $widget_type = $settings[$subfield]['type'];
+      if ($label_display != 'hidden' && self::isLabelSupported($widget_type)) {
+        $widget[$subfield]['#title'] = $label;
+        if ($label_display == 'invisible') {
+          $widget[$subfield]['#title_display'] = 'invisible';
+        }
+        elseif ($label_display == 'inline') {
+          $widget[$subfield]['#wrapper_attributes']['class'][] = 'container-inline';
+        }
+      }
 
       $storage_type = $field_settings['storage'][$subfield]['type'];
 
-      switch ($settings[$subfield]['type']) {
+      switch ($widget_type) {
 
         case 'textfield':
         case 'email':
@@ -302,6 +356,7 @@ class DoubleField extends WidgetBase {
           break;
 
         case 'number':
+        case 'range':
           if (in_array($storage_type, ['integer', 'float', 'numeric'])) {
             if ($field_settings[$subfield]['min']) {
               $widget[$subfield]['#min'] = $field_settings[$subfield]['min'];
@@ -319,20 +374,20 @@ class DoubleField extends WidgetBase {
           break;
 
         case 'datetime':
-          if ($widget[$subfield]['#default_value']) {
-            $storage_format = $field_settings['storage'][$subfield]['datetime_type'] == 'datetime'
-              ? DoubleFieldItem::DATETIME_DATETIME_STORAGE_FORMAT
-              : DoubleFieldItem::DATETIME_DATE_STORAGE_FORMAT;
-            $widget[$subfield]['#default_value'] = DrupalDateTime::createFromFormat(
-              $storage_format,
-              $widget[$subfield]['#default_value'],
-              DoubleFieldItem::DATETIME_STORAGE_TIMEZONE
-            );
-          }
+          $widget[$subfield]['#default_value'] = $items[$delta]->createDate($subfield);
           if ($field_settings['storage'][$subfield]['datetime_type'] == 'date') {
             $widget[$subfield]['#date_time_element'] = 'none';
             $widget[$subfield]['#date_time_format'] = '';
           }
+          else {
+            if ($widget[$subfield]['#default_value']) {
+              $widget[$subfield]['#default_value']->setTimezone(new \DateTimezone(date_default_timezone_get()));
+            }
+            // Ensure that the datetime field processing doesn't set its own
+            // time zone here.
+            $widget[$subfield]['#date_timezone'] = date_default_timezone_get();
+          }
+
           break;
 
       }
@@ -360,7 +415,10 @@ class DoubleField extends WidgetBase {
             ? DoubleFieldItem::DATETIME_DATETIME_STORAGE_FORMAT
             : DoubleFieldItem::DATETIME_DATE_STORAGE_FORMAT;
 
-          $values[$delta][$subfield] = $date->format($storage_format);
+          // Before it can be saved, the time entered by the user must be
+          // converted to the storage time zone.
+          $storage_timezone = new \DateTimezone(DoubleFieldItem::DATETIME_STORAGE_TIMEZONE);
+          $values[$delta][$subfield] = $date->setTimezone($storage_timezone)->format($storage_format);
         }
       }
     }
@@ -390,6 +448,7 @@ class DoubleField extends WidgetBase {
         $subwidgets['email'] = $this->t('Email');
         $subwidgets['tel'] = $this->t('Telephone');
         $subwidgets['url'] = $this->t('Url');
+        $subwidgets['color'] = $this->t('Color');
         break;
 
       case 'email':
@@ -416,6 +475,7 @@ class DoubleField extends WidgetBase {
       case 'numeric':
         $subwidgets['number'] = $this->t('Number');
         $subwidgets['textfield'] = $this->t('Textfield');
+        $subwidgets['range'] = $this->t('Range');
         break;
 
       case 'datetime_iso8601':
@@ -445,6 +505,12 @@ class DoubleField extends WidgetBase {
       if ($field_settings[$subfield]['list'] && !DoubleFieldItem::isListAllowed($subfield_type)) {
         $field_settings[$subfield]['list'] = FALSE;
       }
+      // BC Layer. The settings below may not be set if site was updated from
+      // version below 3.3.
+      // @todo Remove this in 4.0.
+      if (!isset($field_settings[$subfield]['label'])) {
+        $field_settings[$subfield]['label'] = '';
+      }
     }
 
     return $field_settings;
@@ -458,14 +524,32 @@ class DoubleField extends WidgetBase {
     $field_settings = $this->getFieldSettings();
 
     foreach (['first', 'second'] as $subfield) {
-      $subfield_type = $field_settings['storage'][$subfield]['type'];
-      $widget_types = $this->getSubwidgets($subfield_type, $field_settings[$subfield]['list']);
-      if (!array_key_exists($settings[$subfield]['type'], $widget_types)) {
+      $widget_types = $this->getSubwidgets($field_settings['storage'][$subfield]['type'], $field_settings[$subfield]['list']);
+      if (!$settings[$subfield]['type']) {
         $settings[$subfield]['type'] = key($widget_types);
+      }
+      // BC Layer. Before 3.4 the default value for widget type was 'textfield'
+      // even its not supported by some subfield types (i.e. boolean).
+      // @todo Remove this in 4.0.
+      elseif (!array_key_exists($settings[$subfield]['type'], $widget_types)) {
+        $settings[$subfield]['type'] = key($widget_types);
+      }
+      // BC Layer. The settings below may not be set if site was updated from
+      // version below 3.4.
+      // @todo Remove this in 4.0.
+      if (!isset($settings[$subfield]['label_display'])) {
+        $settings[$subfield]['label_display'] = 'hidden';
       }
     }
 
     return $settings;
+  }
+
+  /**
+   * Determines whether or not widget can render subfield label.
+   */
+  private static function isLabelSupported($widget_type) {
+    return $widget_type != 'checkbox' && $widget_type != 'datetime';
   }
 
 }

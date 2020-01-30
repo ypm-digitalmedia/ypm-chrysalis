@@ -7,31 +7,38 @@
       var items = [];
 
       $('.fiu-image-info').each(function () {
-        items.push({
+        var fiuId = $(this).attr('id');
+        items[fiuId] = [];
+        items[fiuId].push({
           src: $(this).html(),
           type: 'inline'
         });
       });
 
-      $('.fiu-image-details').magnificPopup({
-        items: items,
-        gallery: {
-          enabled: true
-        },
-        callbacks: {
-          change: function () {
-            this.content.on('change', function (event) {
-              var val = event.target.value;
-              var id = event.target.id;
-              var itemNumber = event.target.getAttribute('data-item-number');
-              $('.fiu-image-info .attr #' + id).attr('value', val);
+      $('.fiu-image-details').each(function () {
+        var fiuId = $(this).data('fiu-id');
 
-              /* Change item */
-              var changedItem = $('.fiu-image-info .attr #' + id).parents('.fiu-image-info').html();
-              mfp.items[itemNumber].src = changedItem;
-            });
+        $(this).magnificPopup({
+          items: items[fiuId],
+          gallery: {
+            enabled: true
+          },
+          callbacks: {
+            change: function () {
+              this.content.on('change', function (event) {
+                var val = event.target.value;
+                var id = event.target.id;
+                var itemNumber = event.target.getAttribute('data-item-number');
+                var identifier = '#' + fiuId + ' .attr #' + id;
+                $(identifier).attr('value', val);
+
+                /* Change item */
+                var changedItem = $(identifier).parents('.fiu-image-info').html();
+                mfp.items[itemNumber].src = changedItem;
+              });
+            }
           }
-        }
+        });
       });
 
       var mfp = $.magnificPopup.instance;

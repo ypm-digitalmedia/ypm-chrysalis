@@ -8,6 +8,10 @@ use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\search_api\Datasource\DatasourceInterface;
+use Drupal\search_api\Event\IndexingItemsEvent;
+use Drupal\search_api\Event\ItemsIndexedEvent;
+use Drupal\search_api\Event\ReindexScheduledEvent;
+use Drupal\search_api\Event\SearchApiEvents;
 use Drupal\search_api\IndexInterface;
 use Drupal\search_api\Item\FieldInterface;
 use Drupal\search_api\LoggerTrait;
@@ -18,7 +22,7 @@ use Drupal\search_api\SearchApiException;
 use Drupal\search_api\ServerInterface;
 use Drupal\search_api\Tracker\TrackerInterface;
 use Drupal\search_api\Utility\Utility;
-use Drupal\user\TempStoreException;
+use Drupal\Core\TempStore\TempStoreException;
 use Drupal\views\Views;
 
 /**
@@ -49,6 +53,7 @@ use Drupal\views\Views;
  *       "disable" = "Drupal\search_api\Form\IndexDisableConfirmForm",
  *       "reindex" = "Drupal\search_api\Form\IndexReindexConfirmForm",
  *       "clear" = "Drupal\search_api\Form\IndexClearConfirmForm",
+ *       "rebuild_tracker" = "Drupal\search_api\Form\IndexRebuildTrackerConfirmForm",
  *     },
  *   },
  *   admin_permission = "administer search_api",
@@ -88,6 +93,7 @@ use Drupal\views\Views;
  */
 class Index extends ConfigEntityBase implements IndexInterface {
 
+  use InstallingTrait;
   use LoggerTrait;
 
   /**
@@ -913,15 +919,19 @@ class Index extends ConfigEntityBase implements IndexInterface {
     if ($this->hasValidTracker() && !$this->isReadOnly()) {
       $tracker = $this->getTrackerInstance();
       $next_set = $tracker->getRemainingItems($limit, $datasource_id);
+      if (!$next_set) {
+        return 0;
+      }
       $items = $this->loadItemsMultiple($next_set);
-      if ($items) {
-        try {
-          return count($this->indexSpecificItems($items));
-        }
-        catch (SearchApiException $e) {
-          $variables['%index'] = $this->label();
-          $this->logException($e, '%type while trying to index items on index %index: @message in %function (line %line of %file)', $variables);
-        }
+      if (!$items) {
+        return 0;
+      }
+      try {
+        return count($this->indexSpecificItems($items));
+      }
+      catch (SearchApiException $e) {
+        $variables['%index'] = $this->label();
+        $this->logException($e, '%type while trying to index items on index %index: @message in %function (line %line of %file)', $variables);
       }
     }
     return 0;
@@ -954,7 +964,11 @@ class Index extends ConfigEntityBase implements IndexInterface {
 
     // Preprocess the indexed items.
     $this->alterIndexedItems($items);
-    \Drupal::moduleHandler()->alter('search_api_index_items', $this, $items);
+    $description = 'This hook is deprecated in search_api 8.x-1.14 and will be removed in 9.x-1.0. Please use the "search_api.indexing_items" event instead. See https://www.drupal.org/node/3059866';
+    \Drupal::moduleHandler()->alterDeprecated($description, 'search_api_index_items', $this, $items);
+    $event = new IndexingItemsEvent($this, $items);
+    \Drupal::getContainer()->get('event_dispatcher')
+      ->dispatch(SearchApiEvents::INDEXING_ITEMS, $event);
     foreach ($items as $item) {
       // This will cache the extracted fields so processors, etc., can retrieve
       // them directly.
@@ -990,7 +1004,13 @@ class Index extends ConfigEntityBase implements IndexInterface {
       // Since we've indexed items now, triggering reindexing would have some
       // effect again. Therefore, we reset the flag.
       $this->setHasReindexed(FALSE);
-      \Drupal::moduleHandler()->invokeAll('search_api_items_indexed', [$this, $processed_ids]);
+
+      $description = 'This hook is deprecated in search_api 8.x-1.14 and will be removed in 9.x-1.0. Please use the "search_api.items_indexed" event instead. See https://www.drupal.org/node/3059866';
+      \Drupal::moduleHandler()->invokeAllDeprecated($description, 'search_api_items_indexed', [$this, $processed_ids]);
+
+      /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher */
+      $dispatcher = \Drupal::getContainer()->get('event_dispatcher');
+      $dispatcher->dispatch(SearchApiEvents::ITEMS_INDEXED, new ItemsIndexedEvent($this, $processed_ids));
 
       // Clear search api list caches.
       Cache::invalidateTags(['search_api_list:' . $this->id]);
@@ -1061,15 +1081,8 @@ class Index extends ConfigEntityBase implements IndexInterface {
       }
       $this->getTrackerInstance()->$tracker_method($item_ids);
       if (!$this->isReadOnly() && $this->getOption('index_directly') && !$this->batchTracking) {
-        try {
-          $items = $this->loadItemsMultiple($item_ids);
-          if ($items) {
-            $this->indexSpecificItems($items);
-          }
-        }
-        catch (SearchApiException $e) {
-          $this->logException($e);
-        }
+        \Drupal::getContainer()->get('search_api.post_request_indexing')
+          ->registerIndexingOperation($this->id(), $item_ids);
       }
     }
   }
@@ -1101,7 +1114,11 @@ class Index extends ConfigEntityBase implements IndexInterface {
     if ($this->status() && !$this->isReindexing()) {
       $this->setHasReindexed();
       $this->getTrackerInstance()->trackAllItemsUpdated();
-      \Drupal::moduleHandler()->invokeAll('search_api_index_reindex', [$this, FALSE]);
+      $description = 'This hook is deprecated in search_api 8.x-1.14 and will be removed in 9.x-1.0. Please use the "search_api.reindex_scheduled" event instead. See https://www.drupal.org/node/3059866';
+      \Drupal::moduleHandler()->invokeAllDeprecated($description, 'search_api_index_reindex', [$this, FALSE]);
+      /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher */
+      $dispatcher = \Drupal::getContainer()->get('event_dispatcher');
+      $dispatcher->dispatch(SearchApiEvents::REINDEX_SCHEDULED, new ReindexScheduledEvent($this, FALSE));
     }
   }
 
@@ -1109,22 +1126,51 @@ class Index extends ConfigEntityBase implements IndexInterface {
    * {@inheritdoc}
    */
   public function clear() {
-    if ($this->status()) {
-      // Only invoke the hook if we actually did something.
-      $invoke_hook = FALSE;
-      if (!$this->isReindexing()) {
-        $invoke_hook = TRUE;
-        $this->setHasReindexed();
-        $this->getTrackerInstance()->trackAllItemsUpdated();
-      }
-      if (!$this->isReadOnly()) {
-        $invoke_hook = TRUE;
-        $this->getServerInstance()->deleteAllIndexItems($this);
-      }
-      if ($invoke_hook) {
-        \Drupal::moduleHandler()->invokeAll('search_api_index_reindex', [$this, !$this->isReadOnly()]);
-      }
+    if (!$this->status()) {
+      return;
     }
+
+    // Only invoke the hook if we actually did something.
+    $invoke_hook = FALSE;
+    if (!$this->isReindexing()) {
+      $invoke_hook = TRUE;
+      $this->setHasReindexed();
+      $this->getTrackerInstance()->trackAllItemsUpdated();
+    }
+    if (!$this->isReadOnly()) {
+      $invoke_hook = TRUE;
+      $this->getServerInstance()->deleteAllIndexItems($this);
+    }
+    if ($invoke_hook) {
+      $description = 'This hook is deprecated in search_api 8.x-1.14 and will be removed in 9.x-1.0. Please use the "search_api.reindex_scheduled" event instead. See https://www.drupal.org/node/3059866';
+      \Drupal::moduleHandler()->invokeAllDeprecated($description, 'search_api_index_reindex', [$this, !$this->isReadOnly()]);
+
+      /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher */
+      $dispatcher = \Drupal::getContainer()->get('event_dispatcher');
+      $dispatcher->dispatch(SearchApiEvents::REINDEX_SCHEDULED, new ReindexScheduledEvent($this, !$this->isReadOnly()));
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function rebuildTracker() {
+    if (!$this->status()) {
+      return;
+    }
+
+    $index_task_manager = \Drupal::getContainer()
+      ->get('search_api.index_task_manager');
+    $index_task_manager->stopTracking($this);
+    $index_task_manager->startTracking($this);
+    $this->setHasReindexed();
+    $description = 'This hook is deprecated in search_api 8.x-1.14 and will be removed in 9.x-1.0. Please use the "search_api.reindex_scheduled" event instead. See https://www.drupal.org/node/3059866';
+    \Drupal::moduleHandler()
+      ->invokeAllDeprecated($description, 'search_api_index_reindex', [$this, FALSE]);
+    /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher */
+    $dispatcher = \Drupal::getContainer()->get('event_dispatcher');
+    $dispatcher->dispatch(SearchApiEvents::REINDEX_SCHEDULED, new ReindexScheduledEvent($this, FALSE));
+    $index_task_manager->addItemsBatch($this);
   }
 
   /**
@@ -1182,9 +1228,10 @@ class Index extends ConfigEntityBase implements IndexInterface {
    * {@inheritdoc}
    */
   public function preSave(EntityStorageInterface $storage) {
-    // If we are in the process of syncing, we shouldn't change any entity
+    // If we are in the process of syncing, or in the process of installing
+    // configuration from an extension, we shouldn't change any entity
     // properties (or other configuration).
-    if ($this->isSyncing()) {
+    if ($this->isSyncing() || $this->isInstallingFromExtension()) {
       parent::preSave($storage);
       return;
     }
@@ -1357,7 +1404,8 @@ class Index extends ConfigEntityBase implements IndexInterface {
         if (!$use_batch || Utility::isRunningInCli()) {
           $index_task_manager->addItemsAll($this);
         }
-        else {
+        elseif (!defined('MAINTENANCE_MODE')
+            || (!in_array(MAINTENANCE_MODE, ['install', 'update']))) {
           $index_task_manager->addItemsBatch($this);
         }
       }
@@ -1544,8 +1592,8 @@ class Index extends ConfigEntityBase implements IndexInterface {
       \Drupal::cache('discovery')->delete('views:wizard');
     }
 
-    /** @var \Drupal\user\SharedTempStore $temp_store */
-    $temp_store = \Drupal::service('user.shared_tempstore')->get('search_api_index');
+    /** @var \Drupal\Core\TempStore\SharedTempStore $temp_store */
+    $temp_store = \Drupal::service('tempstore.shared')->get('search_api_index');
     foreach ($entities as $entity) {
       try {
         $temp_store->delete($entity->id());

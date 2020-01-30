@@ -122,7 +122,7 @@ class WebformArrayHelper {
    *   A key.
    *
    * @return string|null
-   *   The next key in an array or NULL is there is no next key.
+   *   The next key in an array or NULL if there is no next key.
    */
   public static function getNextKey(array $array, $key) {
     return self::getKey($array, $key, 'next');
@@ -137,7 +137,7 @@ class WebformArrayHelper {
    *   A key.
    *
    * @return string|null
-   *   The prev(ious) key in an array or NULL is there is no previous key.
+   *   The prev(ious) key in an array or NULL if there is no previous key.
    */
   public static function getPreviousKey(array $array, $key) {
     return self::getKey($array, $key, 'prev');
@@ -376,6 +376,25 @@ class WebformArrayHelper {
       }
     }
     $array = $new;
+  }
+
+  /**
+   * Remove value from an array.
+   *
+   * @param array &$array
+   *   An array.
+   * @param mixed $value
+   *   A value.
+   *
+   * @see https://stackoverflow.com/questions/7225070/php-array-delete-by-value-not-key
+   */
+  public static function removeValue(array &$array, $value) {
+    if (($key = array_search($value, $array)) !== FALSE) {
+      unset($array[$key]);
+    }
+    if (static::isSequential($array)) {
+      array_values($array);
+    }
   }
 
 }

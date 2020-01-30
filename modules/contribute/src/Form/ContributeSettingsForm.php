@@ -84,7 +84,7 @@ class ContributeSettingsForm extends ConfigFormBase {
     $form['account']['account_type'] = [
       '#type' => 'radios',
       '#title' => $this->t('Account type'),
-      '#description' => $this->t('Please select the type of Drupal.org account that you use to contribute back to Drupal'),
+      '#description' => $this->t('Select the type of Drupal.org account that you use to contribute back to Drupal'),
       '#options' => [
         'user' => $this->t('Individual user'),
         'organization' => $this->t('Organization'),
@@ -99,7 +99,7 @@ class ContributeSettingsForm extends ConfigFormBase {
     $form['account']['user_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Drupal.org user name'),
-      '#description' => $this->t('Please enter your user name. <a href=":href">Create new user account</a>', [':href' => 'https://register.drupal.org/user/register']),
+      '#description' => $this->t('Enter your user name. <a href=":href">Create new user account</a>', [':href' => 'https://register.drupal.org/user/register']),
       '#default_value' => ($config->get('account_type') === 'user') ? $config->get('account_id') : '',
       '#autocomplete_route_name' => 'contribute.autocomplete',
       '#autocomplete_route_parameters' => ['account_type' => 'user'],
@@ -115,7 +115,7 @@ class ContributeSettingsForm extends ConfigFormBase {
     $form['account']['organization_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Drupal.org organization name'),
-      '#description' => $this->t('Please enter your organization\'s name. <a href=":href">Create new organization</a>', [':href' => 'https://www.drupal.org/node/add/organization']),
+      '#description' => $this->t('Enter your organization\'s name. <a href=":href">Create new organization</a>', [':href' => 'https://www.drupal.org/node/add/organization']),
       '#default_value' => ($config->get('account_type') === 'organization') ? $config->get('account_id') : '',
       '#autocomplete_route_name' => 'contribute.autocomplete',
       '#autocomplete_route_parameters' => ['account_type' => 'organization'],
@@ -208,19 +208,19 @@ class ContributeSettingsForm extends ConfigFormBase {
       $status = TRUE;
       $account_type = NULL;
       $account_id = NULL;
-      drupal_set_message($this->t('Community information has been cleared.'));
+      $this->messenger()->addMessage($this->t('Community information has been cleared.'));
     }
     elseif ($form_state->getValue('disable')) {
       $status = FALSE;
       $account_type = NULL;
       $account_id = NULL;
-      drupal_set_message($this->t('Community information has been disabled.'));
+      $this->messenger()->addMessage($this->t('Community information has been disabled.'));
     }
     else {
       $status = TRUE;
       $account_type = $form_state->getValue('account_type');
       $account_id = $form_state->getValue($account_type . '_id');
-      drupal_set_message($this->t('Your community information has been saved.'));
+      $this->messenger()->addMessage($this->t('Your community information has been saved.'));
     }
 
     // Always clear cached information.

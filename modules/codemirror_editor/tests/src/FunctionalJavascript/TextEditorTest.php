@@ -48,6 +48,7 @@ class TextEditorTest extends TestBase {
 
     $this->assertToolbarExists();
     $this->assertEditorOption('mode', 'text/html');
+    $this->assertEditorOption('lineWrapping', FALSE);
     $this->assertEditorOption('lineNumbers', FALSE);
     $this->assertEditorOption('foldGutter', FALSE);
     $this->assertEditorOption('autoCloseTags', TRUE);
@@ -65,6 +66,7 @@ class TextEditorTest extends TestBase {
     // Make sure that the form displays default values.
     $this->assertElementExist('//select[@name = "editor[settings][mode]"]/optgroup/option[@value = "text/html" and @selected]');
     $this->assertElementExist('//input[@name = "editor[settings][toolbar]" and @checked]');
+    $this->assertElementExist('//input[@name = "editor[settings][lineWrapping]" and not(@checked)]');
     $this->assertElementExist('//input[@name = "editor[settings][lineNumbers]" and not(@checked)]');
     $this->assertElementExist('//input[@name = "editor[settings][foldGutter]" and not(@checked)]');
     $this->assertElementExist('//input[@name = "editor[settings][autoCloseTags]" and @checked]');
@@ -73,6 +75,7 @@ class TextEditorTest extends TestBase {
     $edit = [
       'editor[settings][mode]' => 'application/xml',
       'editor[settings][toolbar]' => FALSE,
+      'editor[settings][lineWrapping]' => TRUE,
       'editor[settings][lineNumbers]' => TRUE,
       'editor[settings][foldGutter]' => TRUE,
       'editor[settings][autoCloseTags]' => FALSE,
@@ -84,6 +87,7 @@ class TextEditorTest extends TestBase {
 
     $this->assertToolbarNotExists();
     $this->assertEditorOption('mode', 'application/xml');
+    $this->assertEditorOption('lineWrapping', TRUE);
     $this->assertEditorOption('lineNumbers', TRUE);
     $this->assertEditorOption('foldGutter', TRUE);
     $this->assertEditorOption('autoCloseTags', FALSE);

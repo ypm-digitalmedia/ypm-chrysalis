@@ -66,14 +66,20 @@
         } else {
           var end = new Date();
         }
-        end.setHours(start_array[0]);
-        end.setMinutes(parseInt(start_array[1]) + duration);
 
-        // Update end time and date inputs
-        var end_val = pad(end.getHours(), 2) + ":" + pad(end.getMinutes(), 2);
-        wrapper.find('.time-end input[type="time"]').val(end_val);
+        // Update End Date input.
         var new_end = end.getFullYear() + '-' + pad(end.getMonth() + 1, 2) + '-' + pad(end.getDate(), 2);
         wrapper.find('.time-end input[type="date"]').val(new_end);
+
+        // Calculate and set End Time only if All Day is not checked.
+        if (!(wrapper.find('input.allday').is(':checked'))) {
+          end.setHours(start_array[0]);
+          end.setMinutes(parseInt(start_array[1]) + duration);
+
+          // Update End Time input.
+          var end_val = pad(end.getHours(), 2) + ":" + pad(end.getMinutes(), 2);
+          wrapper.find('.time-end input[type="time"]').val(end_val);
+        }
       }
 
       function durationChanged(element) {

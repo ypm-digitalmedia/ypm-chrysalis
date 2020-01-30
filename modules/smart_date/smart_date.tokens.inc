@@ -88,13 +88,14 @@ function smart_date_tokens($type, $tokens, array $data, array $options, Bubbleab
     }
 
     $delta = 0;
-    $parts = explode(':', $token);
+    $parts = explode(':', $token, 2);
     // Test for a delta as the first part.
     if (is_numeric($parts[0])) {
       if (count($parts) > 1) {
         $delta = $parts[0];
-        $property_name = $parts[1];
-        $format_value = $parts[2];
+        $parts = explode(':', $parts[1], 2);
+        $property_name = $parts[0];
+        $format_value = $parts[1];
       }
       else {
         continue;

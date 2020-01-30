@@ -6,6 +6,7 @@ use Drupal\codemirror_editor\LibraryBuilderInterface;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Asset\AssetCollectionOptimizerInterface;
 use Drupal\Core\Asset\LibraryDiscoveryInterface;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\State\StateInterface;
 use Drush\Commands\DrushCommands;
 use GuzzleHttp\Client;
@@ -13,8 +14,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Drush integration for CodeMirror editor module.
- *
- * @todo Crete a test for this.
  */
 class CodeMirrorEditorCommands extends DrushCommands {
 
@@ -61,6 +60,13 @@ class CodeMirrorEditorCommands extends DrushCommands {
   protected $time;
 
   /**
+   * The file system service.
+   *
+   * @var \Drupal\Core\File\FileSystemInterface
+   */
+  protected $fileSystem;
+
+  /**
    * Constructs the object.
    *
    * @param \Drupal\Core\Asset\LibraryDiscoveryInterface $library_discovery
@@ -75,6 +81,8 @@ class CodeMirrorEditorCommands extends DrushCommands {
    *   The state key value store.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
+   * @param \Drupal\Core\File\FileSystemInterface $file_system
+   *   The file handler.
    */
   public function __construct(
     LibraryDiscoveryInterface $library_discovery,
@@ -82,7 +90,8 @@ class CodeMirrorEditorCommands extends DrushCommands {
     AssetCollectionOptimizerInterface $js_collection_optimizer,
     AssetCollectionOptimizerInterface $css_collection_optimizer,
     StateInterface $state,
-    TimeInterface $time
+    TimeInterface $time,
+    FileSystemInterface $file_system
   ) {
     parent::__construct();
     $this->libraryDiscovery = $library_discovery;
@@ -91,6 +100,7 @@ class CodeMirrorEditorCommands extends DrushCommands {
     $this->cssCollectionOptimizer = $css_collection_optimizer;
     $this->state = $state;
     $this->time = $time;
+    $this->fileSystem = $file_system;
   }
 
   /**
@@ -123,7 +133,7 @@ class CodeMirrorEditorCommands extends DrushCommands {
       $io->write("<info>$source</info>");
 
       $directory = dirname($destination);
-      if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
+      if (!$this->fileSystem->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY)) {
         $io->error("Could not create directory $directory.");
         return 1;
       }

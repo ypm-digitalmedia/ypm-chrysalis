@@ -37,6 +37,7 @@ class CodeMirrorEditorTestForm extends FormBase {
           'javascript' => $this->t('JavaScript'),
           'css' => $this->t('CSS'),
         ],
+        'lineWrapping' => TRUE,
         'lineNumbers' => TRUE,
         'autoCloseTags' => FALSE,
         'styleActiveLine' => TRUE,

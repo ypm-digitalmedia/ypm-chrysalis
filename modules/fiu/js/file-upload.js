@@ -17,7 +17,6 @@
         let droppedFiles = false;
 
         $fileUploadWrap.addClass('form-type-managed-file--advanced');
-        $fileUploadWrap.find('label').text(Drupal.t('Add or drag new file'));
 
         $fileUploadWrap.on('drag dragstart dragend dragover dragenter dragleave drop', (event) => {
           event.preventDefault();

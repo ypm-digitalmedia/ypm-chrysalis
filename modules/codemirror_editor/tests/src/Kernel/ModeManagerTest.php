@@ -32,10 +32,11 @@ class ModeManagerTest extends KernelTestBase {
 
     $definitions = $manager->getDefinitions();
 
-    self::assertCount(11, $definitions);
+    self::assertCount(12, $definitions);
     $expected_modes = [
       'clike',
       'css',
+      'htmlmixed',
       'javascript',
       'markdown',
       'php',

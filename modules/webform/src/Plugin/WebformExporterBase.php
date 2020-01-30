@@ -149,6 +149,13 @@ abstract class WebformExporterBase extends PluginBase implements WebformExporter
   /**
    * {@inheritdoc}
    */
+  public function hasFiles() {
+    return $this->pluginDefinition['files'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function hasOptions() {
     return $this->pluginDefinition['options'];
   }
@@ -176,13 +183,6 @@ abstract class WebformExporterBase extends PluginBase implements WebformExporter
       'webform' => NULL,
       'source_entity' => NULL,
     ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function calculateDependencies() {
-    return [];
   }
 
   /**
@@ -256,7 +256,7 @@ abstract class WebformExporterBase extends PluginBase implements WebformExporter
    * {@inheritdoc}
    */
   public function getFileTempDirectory() {
-    return file_directory_temp();
+    return $this->configFactory->get('webform.settings')->get('export.temp_directory') ?: file_directory_temp();
   }
 
   /**
@@ -321,6 +321,13 @@ abstract class WebformExporterBase extends PluginBase implements WebformExporter
    */
   public function getArchiveFileName() {
     return $this->getBaseFileName() . '.tar.gz';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBatchLimit() {
+    return $this->configFactory->get('webform.settings')->get('batch.default_batch_export_size') ?: 500;
   }
 
 }

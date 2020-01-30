@@ -22,6 +22,7 @@ class EditorTest extends TestBase {
     $this->activeEditor = 1;
 
     // -- Test default options.
+    $this->assertEditorOption('lineWrapping', FALSE);
     $this->assertEditorOption('lineNumbers', FALSE);
     $this->assertEditorOption('mode', 'text/html');
     $this->assertEditorOption('readOnly', FALSE);
@@ -119,8 +120,11 @@ class EditorTest extends TestBase {
     // -- Test 'modeSelect' option.
     $this->assertElementExist($toolbar_xpath . '/select[@class = "cme-mode"]');
 
-    // -- Test 'lineNumbers' option.
+    // -- Test 'lineWrapping' option.
     $this->assertVisible('//div[contains(@class, "js-form-item-editor-2")]//div[@class = "CodeMirror-gutters"]');
+
+    // -- Test 'lineNumbers' option.
+    $this->assertVisible('//div[contains(@class, "js-form-item-editor-3")]//div[@class = "CodeMirror-gutters"]');
 
     // -- Test 'toolbar' option.
     $this->activeEditor = 3;

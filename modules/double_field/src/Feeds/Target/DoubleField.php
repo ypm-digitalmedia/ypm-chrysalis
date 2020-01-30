@@ -7,7 +7,7 @@ use Drupal\feeds\FieldTargetDefinition;
 use Drupal\feeds\Plugin\Type\Target\FieldTargetBase;
 
 /**
- * Defines a field mapper for double field.
+ * Defines a field mapper for Double Field.
  *
  * @FeedsTarget(
  *   id = "double_field",

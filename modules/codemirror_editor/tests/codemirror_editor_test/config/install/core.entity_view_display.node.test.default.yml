@@ -19,6 +19,7 @@ content:
     label: above
     settings:
       mode: text/html
+      lineWrapping: true
       lineNumbers: true
       foldGutter: false
     third_party_settings: {  }

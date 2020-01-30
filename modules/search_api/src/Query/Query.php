@@ -2,10 +2,14 @@
 
 namespace Drupal\search_api\Query;
 
+use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\search_api\Display\DisplayPluginManagerInterface;
+use Drupal\search_api\Event\QueryPreExecuteEvent;
+use Drupal\search_api\Event\ProcessingResultsEvent;
+use Drupal\search_api\Event\SearchApiEvents;
 use Drupal\search_api\IndexInterface;
 use Drupal\search_api\ParseMode\ParseModeInterface;
 use Drupal\search_api\ParseMode\ParseModePluginManager;
@@ -156,6 +160,13 @@ class Query implements QueryInterface {
   protected $moduleHandler;
 
   /**
+   * The event dispatcher.
+   *
+   * @var \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher|null
+   */
+  protected $eventDispatcher;
+
+  /**
    * The parse mode manager.
    *
    * @var \Drupal\search_api\ParseMode\ParseModePluginManager|null
@@ -175,6 +186,13 @@ class Query implements QueryInterface {
    * @var \Drupal\search_api\Utility\QueryHelperInterface|null
    */
   protected $queryHelper;
+
+  /**
+   * The original query before preprocessing.
+   *
+   * @var static|null
+   */
+  protected $originalQuery;
 
   /**
    * Constructs a Query object.
@@ -228,6 +246,29 @@ class Query implements QueryInterface {
    */
   public function setModuleHandler(ModuleHandlerInterface $module_handler) {
     $this->moduleHandler = $module_handler;
+    return $this;
+  }
+
+  /**
+   * Retrieves the event dispatcher.
+   *
+   * @return \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher
+   *   The event dispatcher.
+   */
+  public function getEventDispatcher() {
+    return $this->eventDispatcher ?: \Drupal::service('event_dispatcher');
+  }
+
+  /**
+   * Sets the event dispatcher.
+   *
+   * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $event_dispatcher
+   *   The new event dispatcher.
+   *
+   * @return $this
+   */
+  public function setEventDispatcher(ContainerAwareEventDispatcher $event_dispatcher) {
+    $this->eventDispatcher = $event_dispatcher;
     return $this;
   }
 
@@ -362,7 +403,7 @@ class Query implements QueryInterface {
    * {@inheritdoc}
    */
   public function setLanguages(array $languages = NULL) {
-    $this->languages = $languages;
+    $this->languages = isset($languages) ? array_values($languages) : NULL;
     return $this;
   }
 
@@ -465,7 +506,7 @@ class Query implements QueryInterface {
    * {@inheritdoc}
    */
   public function getAbortMessage() {
-    return is_bool($this->aborted) ? $this->aborted : NULL;
+    return !is_bool($this->aborted) ? $this->aborted : NULL;
   }
 
   /**
@@ -511,6 +552,9 @@ class Query implements QueryInterface {
     if (!$this->wasAborted() && $this->languages !== []) {
       return FALSE;
     }
+    if (!$this->originalQuery) {
+      $this->originalQuery = clone $this;
+    }
     $this->postExecute();
     return TRUE;
   }
@@ -521,18 +565,32 @@ class Query implements QueryInterface {
   public function preExecute() {
     // Make sure to only execute this once per query, and not for queries with
     // the "none" processing level.
-    if (!$this->preExecuteRan && $this->processingLevel != self::PROCESSING_NONE) {
+    if (!$this->preExecuteRan) {
+      $this->originalQuery = clone $this;
+      $this->originalQuery->executed = FALSE;
       $this->preExecuteRan = TRUE;
+
+      if ($this->processingLevel == self::PROCESSING_NONE) {
+        return;
+      }
 
       // Preprocess query.
       $this->index->preprocessSearchQuery($this);
 
       // Let modules alter the query.
+      $event_base_name = SearchApiEvents::QUERY_PRE_EXECUTE;
+      $event = new QueryPreExecuteEvent($this);
+      $this->getEventDispatcher()->dispatch($event_base_name, $event);
       $hooks = ['search_api_query'];
       foreach ($this->tags as $tag) {
         $hooks[] = "search_api_query_$tag";
+        $event_name = "$event_base_name.$tag";
+        $event = new QueryPreExecuteEvent($this);
+        $this->getEventDispatcher()->dispatch($event_name, $event);
       }
-      $this->getModuleHandler()->alter($hooks, $this);
+
+      $description = 'This hook is deprecated in search_api 8.x-1.14 and will be removed in 9.x-1.0. Please use the "search_api.query_pre_execute" event instead. See https://www.drupal.org/node/3059866';
+      $this->getModuleHandler()->alterDeprecated($description, $hooks, $this);
     }
   }
 
@@ -548,11 +606,21 @@ class Query implements QueryInterface {
     $this->index->postprocessSearchResults($this->results);
 
     // Let modules alter the results.
+    $event_base_name = SearchApiEvents::PROCESSING_RESULTS;
+    $event = new ProcessingResultsEvent($this->results);
+    $this->results = $event->getResults();
+    $this->getEventDispatcher()->dispatch($event_base_name, $event);
+
     $hooks = ['search_api_results'];
     foreach ($this->tags as $tag) {
       $hooks[] = "search_api_results_$tag";
+
+      $event = new ProcessingResultsEvent($this->results);
+      $this->getEventDispatcher()->dispatch("$event_base_name.$tag", $event);
+      $this->results = $event->getResults();
     }
-    $this->getModuleHandler()->alter($hooks, $this->results);
+    $description = 'This hook is deprecated in search_api 8.x-1.14 and will be removed in 9.x-1.0. Please use the "search_api.processing_results" event instead. See https://www.drupal.org/node/3059866';
+    $this->getModuleHandler()->alterDeprecated($description, $hooks, $this->results);
 
     // Store the results in the static cache.
     $this->getQueryHelper()->addResults($this->results);
@@ -676,9 +744,19 @@ class Query implements QueryInterface {
   /**
    * {@inheritdoc}
    */
+  public function getOriginalQuery() {
+    return $this->originalQuery ?: clone $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function __clone() {
     $this->results = $this->getResults()->getCloneForQuery($this);
     $this->conditionGroup = clone $this->conditionGroup;
+    if ($this->originalQuery) {
+      $this->originalQuery = clone $this->originalQuery;
+    }
     if ($this->parseMode) {
       $this->parseMode = clone $this->parseMode;
     }
@@ -707,19 +785,6 @@ class Query implements QueryInterface {
       $this->indexId = NULL;
     }
 
-    // Sanitize the service IDs saved by the serialization trait to guard
-    // against incomplete service containers. Doesn't need to happen when the
-    // trait's __wakeup() method will return early anyways, though.
-    // @todo Remove once #2909164 gets fixed in Core (and we depend on that Core
-    //   version).
-    if (!isset($GLOBALS['__PHPUNIT_BOOTSTRAP']) || \Drupal::hasContainer()) {
-      $container = \Drupal::getContainer();
-      foreach ($this->_serviceIds as $key => $service_id) {
-        if (!$container->has($service_id)) {
-          unset($this->_serviceIds[$key]);
-        }
-      }
-    }
     $this->traitWakeup();
   }
 

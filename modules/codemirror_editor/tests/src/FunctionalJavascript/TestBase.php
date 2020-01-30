@@ -12,6 +12,11 @@ abstract class TestBase extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = ['codemirror_editor', 'codemirror_editor_test'];
 
   /**

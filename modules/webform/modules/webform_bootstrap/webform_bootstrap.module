@@ -7,6 +7,9 @@
 
 use Drupal\Core\Asset\AttachedAssetsInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\webform\Utility\WebformArrayHelper;
+use Drupal\webform\Utility\WebformElementHelper;
+use Drupal\Core\Render\Element;
 
 /**
  * Implements hook_page_attachments().
@@ -26,6 +29,25 @@ function webform_bootstrap_webform_element_webform_terms_of_service_alter(array 
   // Terms of service agreement must always be displayed, so disable
   // smart description.
   $element['#smart_description'] = FALSE;
+}
+
+/**
+ * Implements hook_webform_element_ELEMENT_TYPE_alter().
+ */
+function webform_bootstrap_webform_element_webform_likert_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
+  $element['#pre_render'] = array_merge(['_webform_bootstrap_webform_element_webform_likert_pre_render'], $element['#pre_render']);
+}
+
+function _webform_bootstrap_webform_element_webform_likert_pre_render(array $element) {
+  foreach (Element::children($element) as $element_key) {
+    // Likerts allow description display to be configured, so disable
+    // smart description.
+    if (!empty($element[$element_key]['#description'])) {
+      $element[$element_key]['#smart_description'] = FALSE;
+    }
+    $element[$element_key] = _webform_bootstrap_webform_element_webform_likert_pre_render($element[$element_key]);
+  }
+  return $element;
 }
 
 /**
@@ -51,6 +73,18 @@ function webform_bootstrap_webform_element_alter(array &$element, FormStateInter
     $theme = \Drupal\bootstrap\Bootstrap::getTheme();
     $smart_description_enabled = $theme->getSetting('tooltip_enabled') && $theme->getSetting('forms_smart_descriptions');
   }
+
+  // We need to set $element['#smart_description'] to false if the element's
+  // description_display is set to 'before' or 'after' otherwise Bootstrap will
+  // display as a tooltip regardless of the setting.
+  if ($smart_description_enabled
+    && isset($element['#description'])
+    && isset($element['#description_display'])
+    && empty($element['#smart_description'])
+    && ($element['#description_display'] === 'after' || $element['#description_display'] === 'before')) {
+    $element['#smart_description'] = FALSE;
+  }
+
   if ($smart_description_enabled && isset($element['#description']) && is_array($element['#description']) && (empty($element['#smart_description']) || $element['#smart_description'] === TRUE)) {
     $element['#description'] = \Drupal::service('renderer')->renderPlain($element['#description']);
   }
@@ -64,18 +98,17 @@ function webform_bootstrap_webform_element_alter(array &$element, FormStateInter
 
   // Tweak element types.
   if (isset($element['#type'])) {
-    switch ($element['#type']) {
-      case 'webform_buttons':
-      case 'webform_entity_checkboxes':
-      case 'webform_entity_radios':
-      case 'webform_term_checkboxes':
-      case 'webform_toggles':
-        // Prevent elements that extend radios and checkboxes from being wrapped
-        // in a fieldset.
-        // @see \Drupal\bootstrap\Plugin\Alter\ElementInfo::alter
-        $element['#bootstrap_panel'] = FALSE;
-        break;
-
+    $element_info = \Drupal::service('element_info')->getInfo($element['#type']);
+    if (isset($element_info['#pre_render'])) {
+      foreach ($element_info['#pre_render'] as $pre_render) {
+        if (is_array($pre_render) && in_array($pre_render[1], ['preRenderCompositeFormElement', 'preRenderWebformCompositeFormElement'])) {
+          // Prevent elements that extend radios and checkboxes from being wrapped
+          // in a fieldset.
+          // @see \Drupal\bootstrap\Plugin\Alter\ElementInfo::alter
+          $element['#bootstrap_panel'] = FALSE;
+          break;
+        }
+      }
     }
   }
 }
@@ -88,8 +121,18 @@ function webform_bootstrap_js_alter(&$javascript, AttachedAssetsInterface $asset
     return;
   }
 
-  // Make sure jQuery tooltip is never loaded.
-  unset($javascript['core/assets/vendor/jquery.ui/ui/tooltip-min.js']);
+  $path = drupal_get_path('module', 'webform_bootstrap');
+  // Make sure jQuery tooltip is never loaded and use custom
+  // webform.element.help.js.
+  unset(
+    $javascript['core/assets/vendor/jquery.ui/ui/tooltip-min.js'],
+    $javascript['core/assets/vendor/jquery.ui/ui/widgets/tooltip-min.js']
+  );
+
+  $webform_help_path = drupal_get_path('module', 'webform') . '/js/webform.element.help.js';
+  if (isset($javascript[$webform_help_path])) {
+    $javascript[$webform_help_path]['data'] = $path . '/js/webform.element.help.js';
+  }
 }
 
 /**
@@ -127,10 +170,66 @@ function webform_bootstrap_preprocess_input(&$variables) {
       $element['#title'] = t('Add');
       $element['#icon'] = \Drupal\bootstrap\Bootstrap::glyphicon('plus-sign');
     }
-    elseif (strpos($variables['attributes']['src'], '/webform/images/icons/ex.svg') !== FALSE) {
+    elseif (strpos($variables['attributes']['src'], '/webform/images/icons/minus.svg') !== FALSE) {
       $element['#title'] = t('Remove');
       $element['#icon'] = \Drupal\bootstrap\Bootstrap::glyphicon('minus-sign');
     }
+  }
+}
+
+/**
+ * Prepares variables for form element templates.
+ */
+function webform_bootstrap_preprocess_form_element(&$variables) {
+  if (!_webform_bootstrap_is_active_theme()) {
+    return;
+  }
+
+  if (!WebformElementHelper::isWebformElement($variables['element'])) {
+    return;
+  }
+
+  // Do not display phone number using inline form.
+  // @see https://www.drupal.org/project/webform/issues/2910776s
+  // @see https://www.drupal.org/project/bootstrap/issues/2829634
+  if (WebformElementHelper::isType($variables['element'], 'tel')
+    && isset($variables['attributes']['class'])) {
+    WebformArrayHelper::removeValue($variables['attributes']['class'], 'form-inline');
+  }
+}
+
+/**
+ * Implements template_preprocess_fieldset().
+ */
+function webform_bootstrap_preprocess_fieldset(&$variables) {
+  if (!_webform_bootstrap_is_active_theme()) {
+    return;
+  }
+
+  // Make sure that the core/modules/system/templates/fieldset.html.twig
+  // template is being used because this the template that we are fixing.
+  // Caching the info just-in-case there are a lot of fieldsets.
+  static $is_system_fieldset;
+  if (!isset($is_system_fieldset)) {
+    /** @var \Drupal\Core\Utility\ThemeRegistry $theme_registry */
+    $theme_registry = \Drupal::service('theme.registry')->getRuntime();
+    $info = $theme_registry->get('fieldset');
+    $is_system_fieldset = ($info['path'] === 'core/modules/system/templates') ? TRUE : FALSE;
+  }
+  if (!$is_system_fieldset) {
+    return;
+  }
+
+  // Style fieldset error messages to match form element error messages.
+  // @see form-element.html.twig
+  if (!empty($variables['errors'])) {
+    $variables['errors'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => ['form-item--error-message', 'alert', 'alert-danger', 'alert-sm'],
+      ],
+      'content' => ['#markup' => $variables['errors']],
+    ];
   }
 }
 

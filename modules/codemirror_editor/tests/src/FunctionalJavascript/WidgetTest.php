@@ -36,6 +36,7 @@ class WidgetTest extends TestBase {
       'placeholder' => '',
       'mode' => 'text/html',
       'toolbar' => TRUE,
+      'lineWrapping' => FALSE,
       'lineNumbers' => FALSE,
       'foldGutter' => FALSE,
       'autoCloseTags' => TRUE,
@@ -58,6 +59,7 @@ class WidgetTest extends TestBase {
       'placeholder' => 'Example',
       'mode' => 'application/xml',
       'toolbar' => FALSE,
+      'lineWrapping' => TRUE,
       'lineNumbers' => TRUE,
       'foldGutter' => TRUE,
       'autoCloseTags' => FALSE,
@@ -68,6 +70,7 @@ class WidgetTest extends TestBase {
     $this->updateWidgetSettingField('placeholder', $widget_settings['placeholder']);
     $this->updateWidgetSettingField('mode', $widget_settings['mode']);
     $this->updateWidgetSettingField('toolbar', $widget_settings['toolbar']);
+    $this->updateWidgetSettingField('lineWrapping', $widget_settings['lineWrapping']);
     $this->updateWidgetSettingField('lineNumbers', $widget_settings['lineNumbers']);
     $this->updateWidgetSettingField('foldGutter', $widget_settings['foldGutter']);
     $this->updateWidgetSettingField('autoCloseTags', $widget_settings['autoCloseTags']);
@@ -106,6 +109,7 @@ class WidgetTest extends TestBase {
     $this->assertSession()->elementExists('xpath', $xpath);
     $widget_settings['toolbar'] ? $this->assertToolbarExists() : $this->assertToolbarNotExists();
     $this->assertEditorOption('mode', $widget_settings['mode']);
+    $this->assertEditorOption('lineWrapping', $widget_settings['lineWrapping']);
     $this->assertEditorOption('lineNumbers', $widget_settings['lineNumbers']);
     $this->assertEditorOption('foldGutter', $widget_settings['foldGutter']);
     $this->assertEditorOption('autoCloseTags', $widget_settings['autoCloseTags']);
@@ -122,6 +126,7 @@ class WidgetTest extends TestBase {
     }
     $expected_summary[] = 'Language mode: ' . $widget_settings['mode'];
     $expected_summary[] = 'Load toolbar: ' . ($widget_settings['toolbar'] ? 'Yes' : 'No');
+    $expected_summary[] = 'Line wrapping: ' . ($widget_settings['lineWrapping'] ? 'Yes' : 'No');
     $expected_summary[] = 'Line numbers: ' . ($widget_settings['lineNumbers'] ? 'Yes' : 'No');
     $expected_summary[] = 'Fold gutter: ' . ($widget_settings['foldGutter'] ? 'Yes' : 'No');
     $expected_summary[] = 'Auto close tags: ' . ($widget_settings['autoCloseTags'] ? 'Yes' : 'No');
@@ -156,6 +161,10 @@ class WidgetTest extends TestBase {
 
     $xpath = '//input[@name = "fields[field_code][settings_edit_form][settings][toolbar]" and %s]';
     $xpath = sprintf($xpath, $widget_settings['toolbar'] ? '@checked = "checked"' : 'not(@checked)');
+    $assert_session->elementExists('xpath', $xpath, $settings_wrapper);
+
+    $xpath = '//input[@name = "fields[field_code][settings_edit_form][settings][lineWrapping]" and %s]';
+    $xpath = sprintf($xpath, $widget_settings['lineWrapping'] ? '@checked = "checked"' : 'not(@checked)');
     $assert_session->elementExists('xpath', $xpath, $settings_wrapper);
 
     $xpath = '//input[@name = "fields[field_code][settings_edit_form][settings][lineNumbers]" and %s]';

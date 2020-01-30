@@ -8,5 +8,6 @@ services:
       - '@asset.css.collection_optimizer'
       - '@state'
       - '@datetime.time'
+      - '@file_system'
     tags:
       - { name: drush.command }

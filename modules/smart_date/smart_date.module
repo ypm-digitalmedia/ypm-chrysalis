@@ -7,6 +7,7 @@
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
 
 /**
  * Implements hook_help().
@@ -15,7 +16,7 @@ function smart_date_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     case 'help.page.smart_date':
       if (\Drupal::moduleHandler()->moduleExists('field_ui')) {
-        $field_ui_link = \Drupal::url('help.page', ['name' => 'field_ui']);
+        $field_ui_link = Url::fromRoute('help.page', ['name' => 'field_ui']);
       }
       else {
         $field_ui_link = '#';
@@ -23,7 +24,7 @@ function smart_date_help($route_name, RouteMatchInterface $route_match) {
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('The Smart Date module provides a Date field that stores start dates and times, as well as end dates and times. See the <a href=":field">Field module help</a> and the <a href=":field_ui">Field UI module help</a> pages for general information on fields and how to create and manage them. For more information, see the <a href=":datetime_do">online documentation for the Datetime Range module</a>.', [
-          ':field' => Drupal::url('help.page', ['name' => 'field']),
+          ':field' => Url::fromRoute('help.page', ['name' => 'field']),
           ':field_ui' => $field_ui_link,
           ':datetime_do' => 'https://www.drupal.org/documentation/modules/smart_date',
         ]) . '</p>';

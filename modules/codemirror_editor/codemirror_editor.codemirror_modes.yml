@@ -18,6 +18,12 @@ css:
     - text/css
     - text/x-scss
     - text/x-less
+htmlmixed:
+  label: HTML mixed
+  mime_types:
+    - text/html
+  dependencies:
+    - xml
 javascript:
   label: JavaScript
   mime_types:

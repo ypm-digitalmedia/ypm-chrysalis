@@ -53,6 +53,7 @@ trait ViewsReferenceTrait {
       case 'select':
         $view_selected_js_state = ['!value' => '_none'];
         $ajax_event = 'change';
+        $element['target_id']['#default_value'] = isset($field_value['target_id']) ? $field_value['target_id'] : '';
         break;
 
       default:

@@ -1,13 +1,12 @@
 name: CodeMirror editor test
 type: module
 description: Helper module for testing CodeMirror editor.
-# core: 8.x
+core: 8.x
 dependencies:
   - codemirror_editor:codemirror_editor
   - drupal:node
 
-# Information added by Drupal.org packaging script on 2019-01-28
-version: '8.x-1.2'
-core: '8.x'
+# Information added by Drupal.org packaging script on 2020-01-25
+version: '8.x-1.4'
 project: 'codemirror_editor'
-datestamp: 1548660484
+datestamp: 1579930687

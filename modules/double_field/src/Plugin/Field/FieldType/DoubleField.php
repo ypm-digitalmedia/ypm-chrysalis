@@ -2,6 +2,7 @@
 
 namespace Drupal\double_field\Plugin\Field\FieldType;
 
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
@@ -15,8 +16,8 @@ use Drupal\Component\Utility\Random;
  *
  * @FieldType(
  *   id = "double_field",
- *   label = @Translation("Double field"),
- *   description = @Translation("Double field."),
+ *   label = @Translation("Double Field"),
+ *   description = @Translation("Double Field."),
  *   default_widget = "double_field",
  *   default_formatter = "double_field_unformatted_list"
  * )
@@ -113,8 +114,8 @@ class DoubleField extends FieldItemBase {
 
       $element['storage'][$subfield]['datetime_type'] = [
         '#type' => 'radios',
-        '#title' => t('Date type'),
-        '#description' => t('Choose the type of date to create.'),
+        '#title' => $this->t('Date type'),
+        '#description' => $this->t('Choose the type of date to create.'),
         '#default_value' => $settings['storage'][$subfield]['datetime_type'],
         '#disabled' => $has_data,
         '#options' => [
@@ -139,6 +140,7 @@ class DoubleField extends FieldItemBase {
     $settings = [];
     foreach (['first', 'second'] as $subfield) {
       $settings[$subfield] = [
+        'label' => '',
         'min' => '',
         'max' => '',
         'list' => FALSE,
@@ -173,6 +175,12 @@ class DoubleField extends FieldItemBase {
         '#title' => $title,
         '#open' => FALSE,
         '#tree' => TRUE,
+      ];
+
+      $element[$subfield]['label'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Label'),
+        '#default_value' => $settings[$subfield]['label'],
       ];
 
       $element[$subfield]['required'] = [
@@ -374,7 +382,8 @@ class DoubleField extends FieldItemBase {
 
         case 'float':
           $columns[$subfield]['type'] = 'float';
-          $columns[$subfield]['size'] = 'normal';
+          // Big makes the float behaviour less surprising.
+          $columns[$subfield]['size'] = 'big';
           break;
 
         case 'boolean':
@@ -739,6 +748,37 @@ class DoubleField extends FieldItemBase {
     }
 
     return $data;
+  }
+
+  /**
+   * Creates date object for a given subfield using storage timezone.
+   */
+  public function createDate($subfield) {
+    if ($this->{$subfield}) {
+      $is_date_only = $this->getSetting('storage')[$subfield]['datetime_type'] == 'date';
+      $format = $is_date_only ? static::DATETIME_DATE_STORAGE_FORMAT : static::DATETIME_DATETIME_STORAGE_FORMAT;
+      $date = DrupalDateTime::createFromFormat($format, $this->{$subfield}, static::DATETIME_STORAGE_TIMEZONE);
+      if ($is_date_only) {
+        $date->setDefaultDateTime();
+      }
+      return $date;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getSettings() {
+    $settings = parent::getSettings();
+    foreach (['first', 'second'] as $subfield) {
+      // BC Layer. The settings below may not be set if site was updated from
+      // version below 3.3.
+      // @todo Remove this in 4.0.
+      if (!isset($settings[$subfield]['label'])) {
+        $settings[$subfield]['label'] = '';
+      }
+    }
+    return $settings;
   }
 
 }
