@@ -1,0 +1,12 @@
+name: Node Link Token
+type: module
+description: 'Adds the [node:link{nid,title}] token.'
+# core: '8.x'
+dependencies:
+  - drupal:token_custom_plus
+
+# Information added by Drupal.org packaging script on 2018-05-17
+version: '8.x-1.0'
+core: '8.x'
+project: 'token_custom_plus'
+datestamp: 1526555587

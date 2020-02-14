@@ -10,6 +10,11 @@ use Drupal\node\Entity\Node;
 use Drupal\Core\Render\Element;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\paragraphs\Entity\Paragraph;
+use Drupal\media\Entity\Media;
+use Drupal\file\Entity\File;
+use Drupal\image\Entity\ImageStyle;
+use Drupal\media_entity\MediaInterface;
+use Drupal\file\Entity;
 
 /**
  * Implements hook_preprocess_HOOK() for HTML document templates.
@@ -57,7 +62,7 @@ function chrysalis_theme_suggestions_block_alter(array &$suggestions, array $var
 }
 
 function chrysalis_preprocess_node(array &$variables) {
-    $node = $variables['node'];
+    // $node = $variables['node'];
 
     // $variables['ref'] = $node->get('tags')-referencedEntities();
 
@@ -76,7 +81,18 @@ function chrysalis_preprocess_node(array &$variables) {
     // }
     
     // $entity_id = $node->get('field_division_t')->first()->getValue()['target_id'];
-      
+
+    // switch ($node->getType()) {
+    //     case "slider":
+    //         if( !$node->field_slider_format == null ) { 
+    //             $variables['sliderFormat'] = $node->field_slider_format->value;
+    //         } else {
+    //             $variables['sliderFormat'] = "default";
+    //         }
+    //         break;
+    //     default:
+    //         $variables['sliderFormat'] = null;
+    // }
 
 }
 
@@ -217,7 +233,7 @@ function chrysalis_preprocess_paragraph(&$variables) {
 }
 
 
- function chrysalis_preprocess_taxonomy_term(&$variables) {
+// function chrysalis_preprocess_taxonomy_term(&$variables) {
     // $variables['view_mode'] = $variables['elements']['#view_mode'];
     // $variables['term'] = $variables['elements']['#taxonomy_term'];
   
@@ -236,8 +252,7 @@ function chrysalis_preprocess_paragraph(&$variables) {
     // foreach (Element::children($variables['elements']) as $key) {
     //   $variables['content'][$key] = $variables['elements'][$key];
     // }
-
-   }
+//   }
 
 
 
@@ -272,25 +287,138 @@ function getNodesByTid($tid) {
     return NULL;
 }
 
-// function getNodesByTids($termIds){
+/**
+ * custom script for owl carousel - provide new variables to build slider manually ( img -> div w/css bg img )
+ */
+function chrysalis_preprocess_owl(&$variables) {
     
-//     $termIds = (array) $termIds;
-//     if(empty($termIds)){
-//       return NULL;
-//     }
+    if ($node = \Drupal::routeMatch()->getParameter('node_preview')) {
+        $node = \Drupal::routeMatch()->getParameter('node_preview');
+    } else { 
+        $node = \Drupal::routeMatch()->getParameter('node');
+    }
+    $variables['node'] = $node;
+
+    $items = $variables['items'];
   
-//     $query = \Drupal::database()->select('taxonomy_index', 'ti');
-//     $query->fields('ti', array('nid'));
-//     $query->condition('ti.tid', $termIds, 'IN');
-//     $query->distinct(TRUE);
-//     $result = $query->execute();
+    $settings = _owl_format_settings($variables['settings']);
   
-//     if($nodeIds = $result->fetchCol()){
-//       return Node::loadMultiple($nodeIds);
-//     }
+    $variables['attributes']['class'][] = 'owl-slider-wrapper';
+    $variables['attributes']['class'][] = 'owl-carousel';
+    $variables['attributes']['data-settings'] = json_encode($settings);
   
-//     return NULL;
-//   }
+    $html = '';
+    
+    $item_data = array();
+    if (!empty($items)) {
+      $i = 0;
+      foreach ($items as $item) {
+        $html .= '<div class="owl-item-inner owl-item-inner' . $i . '">' . render($item) . '</div>';
+        $i++;
+      }
+    }
+    $output = array(
+      '#type' => 'markup',
+      '#markup' => $html,
+    );
+    $imagesContent = array();
+    
+    // CUSTOM LOGIC
+    // differentiate between 'slider' content type and all else
+    // sliders can be included in other pages as entity references
+    // 'slider' content type has fields field_slider_caption & field_slide_text_overlays
+    // nodes which reference sliders must fetch these fields alternatively.
+
+    // ------------------------------------------------------
+    // begin custom - images
+    // ------------------------------------------------------
+    switch ($node->getType()) {
+        case "slider":
+            $theImages = $node->field_slider_images;
+        break;
+        case "collections_division":
+            $theImages = $node->field_select_slider_images->entity->field_slider_images;
+        break;
+        // case "basic_page":
+        //     $theImages = $node->field_select_slider_images->entity->field_slider_images;
+        // break;
+        // case "event":
+        //     $theImages = $node->field_select_slider_images->entity->field_slider_images;
+        // break;
+        // case "webform":
+        //     $theImages = $node->field_select_slider_images->entity->field_slider_images;
+        // break;
+        default:
+            $theImages = $node->field_select_slider_images->entity->field_slider_images;
+    }
+
+    foreach ($theImages as $image) {
+        array_push($imagesContent,$image->getValue());
+    }
+    // ------------------------------------------------------
+    // end custom
+    // ------------------------------------------------------
+
+    foreach( $imagesContent as $index=>&$imageData ) {
+        $fid = $imageData['target_id'];
+        $file = File::load($fid);
+        $url = $file->url();
+        
+        $imageData['url'] = $url;
+    }
+    unset($imageData);
+
+    $variables['images'] = $imagesContent;
+
+
+    // ------------------------------------------------------
+    // begin custom - other metadata
+    // ------------------------------------------------------
+    switch ($node->getType()) {
+        case "slider":
+            $variables['caption'] = $node->field_slider_caption->getString();
+            $variables['overlays'] = $node->field_slide_text_overlays[0]->value;
+            $variables['overlayStyle'] = $node->field_slide_text_overlay_style->value;
+            $variables['sliderFormat'] = $node->field_slider_format->value;
+            break;
+        case "collections_division":
+            $variables['caption'] = $node->field_select_slider_images->entity->field_slider_caption->getString();
+            $variables['overlays'] = $node->field_select_slider_images->entity->field_slide_text_overlays[0]->value;
+            $variables['overlayStyle'] = $node->field_select_slider_images->entity->field_slide_text_overlay_style->value;
+            $variables['sliderFormat'] = $node->field_select_slider_images->entity->field_slider_format->value;
+            break;
+        default:
+            $variables['caption'] = $node->field_select_slider_images->entity->field_slider_caption->getString();
+            $variables['overlays'] = $node->field_select_slider_images->entity->field_slide_text_overlays[0]->value;
+            $variables['overlayStyle'] = $node->field_select_slider_images->entity->field_slide_text_overlay_style->value;
+            $variables['sliderFormat'] = $node->field_select_slider_images->entity->field_slider_format->value;
+    }
+
+    if( !$variables['overlayStyle'] ) {
+        $variables['overlayStyle'] = "light"; 
+    }
+
+    // if( isset( $node->field_slider_caption) ) {
+    //     $variables['caption'] = $node->field_slider_caption->getString();
+    // } else {
+    //     $variables['caption'] = "";
+    // }
+
+    // if( isset($node->field_slide_text_overlays) ) {
+    //     $variables['overlays'] = $node->field_slide_text_overlays[0]->value;
+    // } else {
+    //     $variables['overlays'] = 0;
+    // }
+
+    // ------------------------------------------------------
+    // end custom
+    // ------------------------------------------------------
+
+    $variables['nodetype'] = $node->getType();
+    $variables['items'] = $item_data;
+
+    $variables['output'] = render($output);
+  }
 
 
 ?>

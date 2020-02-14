@@ -1,0 +1,36 @@
+<div{{ attributes.addClass(classes) }}>
+   {# {{ output }} #}
+
+   {% for image in images %}
+
+      {#  WE NEED TO DEFINE SLIDER HEIGHTS HERE WITH CSS CLASSES #}
+
+      <div class='owl-item-inner owl-item-inner{{loop.index}} owl-item-inner-format-{{sliderFormat}}' style='background-image:url("{{image.url|escape('html_attr')}}");'>
+         {# for accessibility #}
+         <span class="background-image" role="img" aria-label="{{image.alt|escape('html_attr')}}"></span>
+         
+         {% if overlays %}
+         <div class="slider-text-overlay slider-text-overlay-{{overlayStyle}} slider-text-overlay-format-{{sliderFormat}}">
+            {# <h3>{{ nodetype }}</h3> #}
+            <span>{{ image.title|raw }}</span>
+         </div>
+         {% endif %}
+      </div>
+
+   {% endfor %}
+
+</div>
+
+{% if caption %} 
+<div class="owl-custom-caption owl-custom-caption-{{sliderFormat}}">
+<p style="text-align: right"><em>{{ caption }}</em></p>
+</div>
+{% endif %}
+
+{# {% if sliderFormat == "hero" %}
+   <script type="text/javascript">
+      $(document).ready(function() {
+         $(".owl-controls").prependTo(".owl-wrapper-outer");
+      });
+   </script>
+{% endif %} #}
