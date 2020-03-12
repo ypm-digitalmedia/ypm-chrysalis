@@ -3,6 +3,10 @@ global-styling:
   css:
     base:
       css/adminimal.css: {}
+  js:
+    # lib/jquery-3.4.1.min.js: {}
+    lib/custom_adminimal.js: {}
+    lib/Datejs-master/build/date.js: {}
 
 google-fonts:
   version: VERSION

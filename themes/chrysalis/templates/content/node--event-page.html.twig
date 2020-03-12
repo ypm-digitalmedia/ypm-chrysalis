@@ -157,9 +157,15 @@
     </div><!-- /.row -->
     <div class="row">
         {% if content.field_signup_button %}
-            <p class="button-row"><a data-link-parent="event_signup_{{ node.id }}_{{ seed }}" class="btn btn-peabody signup-button" href="{{ node.field_signup_button[0].url }}" role="button" title="{{ node.field_signup_button[0].title }} - {{ node.label }}" aria-label="{{ node.field_signup_button[0].title }} - {{ node.label }}">{{ node.field_signup_button[0].title }}</a></p>
+            {% set buttonUrl = node.field_signup_button.0.url %}
+            {% set buttonText = node.field_signup_button.0.title %}
+            {% if buttonUrl is empty or buttonText is empty %}
+                <p>NO BUTTON</p>
+            {% else %}
+                <p class="button-row"><a data-link-parent="event_signup_{{ node.id }}_{{ seed }}" class="btn btn-peabody signup-button upcoming-events-signup-button" href="{{ buttonUrl }}" role="button" title="{{ buttonText }} - {{ node.label }}" aria-label="{{ buttonText }} - {{ node.label }}">{{ buttonText }}</a></p>
+            {% endif %}
         {% endif %}
-
+        
     </div>
 </div> <!-- /.container -->
 

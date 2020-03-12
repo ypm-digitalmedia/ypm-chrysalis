@@ -48,13 +48,15 @@
 {% block paragraph %}
   <div{{ attributes.addClass(classes) }}>
     {% block content %}
-    
+        
+        {% set alignment = content.field_alignment.0['#markup']|lower %}
+
         {% if content.field_section_title %}
-            <h2 class="section-title">{{ content.field_section_title.0 }}</h2>
+            <h2 class="section-title {{alignment}}">{{ content.field_section_title.0 }}</h2>
         {% endif %}
         
         {% if content.field_section_subtitle %}
-            <h2 class="section-subtitle">{{ content.field_section_subtitle.0 }}</h2>
+            <h2 class="section-subtitle {{alignment}}">{{ content.field_section_subtitle.0 }}</h2>
         {% endif %}
             
     {% endblock %}

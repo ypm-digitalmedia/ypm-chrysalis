@@ -56,6 +56,7 @@
 
 {# if card image, use 3-9 grid.  otherwise, delete and use full row #}
 {% if row._entity.field_select_card.value %}
+    {# {{ kint(row._entity.fields.field_select_card) }} #}
   <div class="col-sm-12 col-md-4 col-lg-3">
     {{ fields.field_select_card.content }}
   </div>

@@ -57,22 +57,22 @@ $(document).ready(function() {
         $(this).find("ul").css("border-left", "none");
         $(this).find("a:first").css("color", "white").css("background-color", "#01356b").css("padding", "0px");
     });
-	
-	$(".copy-button").click(function() {
-		var theId = $(this).attr('data-clipboard-target');
-//			var el = document.getElementById(theId);
-//			var range = document.createRange();
-//			range.selectNodeContents(el);
-//			var sel = window.getSelection();
-//			sel.removeAllRanges();
-//			sel.addRange(range);
-//			document.execCommand('copy');
-		
-			copyToClipboard(theId);
-		
-			alert("Contents of " + theId + " copied to clipboard.");
-			window.open("localhost:8080/card.html","_blank");
-	});
+
+    $(".copy-button").click(function() {
+        var theId = $(this).attr('data-clipboard-target');
+        //			var el = document.getElementById(theId);
+        //			var range = document.createRange();
+        //			range.selectNodeContents(el);
+        //			var sel = window.getSelection();
+        //			sel.removeAllRanges();
+        //			sel.addRange(range);
+        //			document.execCommand('copy');
+
+        copyToClipboard(theId);
+
+        alert("Contents of " + theId + " copied to clipboard.");
+        window.open("localhost:8080/card.html", "_blank");
+    });
 
 });
 

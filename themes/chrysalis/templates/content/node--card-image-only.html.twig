@@ -77,27 +77,36 @@
 {% set seed = random() %}
 
 {# FRONT SUBTITLE ALIGNMENT #}
-{% if content.field_front_subtitle_alignment %}
-{% set frontSubtitleAlignment = content.field_front_subtitle_alignment['#items'].getString() %}
+{% if node.field_front_subtitle_alignment %}
+    {% set frontSubtitleAlignment = node.field_front_subtitle_alignment.value|lower %}
 {% else %}
-{% set frontSubtitleAlignment = 'right' %}
+    {% set frontSubtitleAlignment = 'right' %}
 {% endif %}
 
 {# FRONT IMAGE ALIGNMENT #}
-{% if content.field_front_image_alignment %}
-{% set frontImageAlignment = content.field_front_image_alignment['#items'].getString() %}
+{% if node.field_front_image_alignment %}
+    {% set frontImageAlignment = node.field_front_image_alignment.value|lower %}
 {% else %}
-{% set frontImageAlignment = 'right' %}
+    {% set frontImageAlignment = 'center' %}
+{% endif %}
+
+{# FRONT TITLE #}
+{% if node.field_front_title %}
+    {% set frontTitle = node.field_front_title.value %}
+{% else %}
+    {% set frontTitle = node.label %}
 {% endif %}
 
 {# FRONT IMAGE #}
 {% set frontImage = file_url(content.field_front_image|field_target_entity.uri.value) %}
 
 {# <div class="col-xs-12"> #}
+    {# <p style="background-color: red">Subtitle: <strong>{{frontSubtitleAlignment}}</strong><br />Image: <strong>{{frontImageAlignment}}</strong><br />FrontTitle: <strong>{{frontTitle}}</strong></p> #}
     <div class="box-item noflip" id="card_{{ node.id }}_{{ seed }}">
         {# FRONT #}
-        <figure alt="{{ content.field_front_title }}" class="front photo-front photo-front-shadow-bottom" style="background-image:url('{{ frontImage }}');  background-position: {{ frontImageAlignment }};">
+        <figure alt="{{ frontTitle }}" class="front photo-front photo-front-shadow-bottom" style="background-image:url('{{ frontImage }}');  background-position: {{ frontImageAlignment }};">
         </figure>
+        
         {# /FRONT #}
     </div>
 {# </div> #}

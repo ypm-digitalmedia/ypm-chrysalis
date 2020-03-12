@@ -958,4 +958,96 @@ td.views-field-field-photo img {
 }
 
 
+/* -------------- CUSTOM FORMATTER BUTTONS --------------------- */
+
+.do-custom-format {
+    margin-left: 0!important;
+    margin-right: 0!important;
+}
+
+.success-custom {
+    background-color: lightgreen!important;
+}
+
+.error-custom {
+    background-color: lightcoral!important;
+}
+
+
+/* -------------- SLIDER ADMIN --------------------- */
+
+.imagefield_slideshow-wrapper {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.imagefield_slideshow-wrapper .prev-next {
+    margin-top: 0;
+    width: 100%;
+}
+
+.imagefield_slideshow-wrapper .prev-next a {
+    /* width: 49%; */
+    text-align: center;
+    /* display: inline-block; */
+    padding: 0 1em;
+}
+
+
+/* -------------- DEMO BUTTONS --------------------- */
+
+span.demo-button {
+    display: inline-block;
+    padding: 0.25em 0.5em;
+    margin: 0 0.5em 0 0;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.demo-button-default {
+    color: black;
+    background-color: #ddd;
+}
+
+.demo-button-disabled {
+    color: #333;
+    background-color: #aaaaaa;
+    font-style: italic;
+}
+
+.demo-button-primary {
+    color: white;
+    background-color: #01356b;
+}
+
+.demo-button-success {
+    color: white;
+    background-color: #5cb85c;
+}
+
+.demo-button-info {
+    color: white;
+    background-color: #5bc0de;
+}
+
+.demo-button-warning {
+    color: white;
+    background-color: #f0ad4e;
+}
+
+.demo-button-danger {
+    color: white;
+    background-color: #d9534f;
+}
+
+
+/* -------------- INPUTS --------------------- */
+
+.js input.form-autocomplete {
+    display: inline-block!important;
+}
+
+
 /* --------------------------------------------------------------- */

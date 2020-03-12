@@ -18,6 +18,7 @@ body {
     margin: 0;
     padding: 0;
     height: 100%; */
+    overflow-x: hidden;
 }
 
 .header {
@@ -144,24 +145,24 @@ h2.page-subtitle {
 }
 
 h2.section-title {
-    text-align: center;
+    /* text-align: center; */
 }
 
 h2.section-subtitle {
-    text-align: center;
+    /* text-align: center; */
     font-size: 1.75rem!important;
 }
 
 .left {
-    text-align: left;
+    text-align: left!important;
 }
 
 .right {
-    text-align: right;
+    text-align: right!important;
 }
 
 .center {
-    text-align: center;
+    text-align: center!important;
 }
 
 .plain-case {
@@ -427,17 +428,67 @@ h2.section-subtitle {
    BUTTONS
    ================================================================================== */
 
+.btn {
+    border-radius: 0!important;
+    color: white!important;
+}
+
+.btn:hover,
+.btn:focus,
+.btn:active {}
+
 .signup-button {
     font-size: 1.5em!important;
 }
 
-.btn-peabody:link,
-.btn-peabody:visited,
+.signup-button-smaller {
+    /* font-size: 1.25em!important; */
+    font-size: 1.1em!important;
+}
+
+.button-row {
+    width: 100%;
+    text-align: center;
+}
+
+.paragraph:has(.custom-button-container) {
+    width: auto!important;
+    display: inline-block!important;
+}
+
+.custom-button-container {
+    width: auto!important;
+    display: inline-block!important;
+}
+
+.fontawesome-icon,
+.fontawesome-icons {
+    display: inline-block!important;
+    float: left!important;
+    width: auto!important;
+}
+
+.button-fa-icon {
+    margin-right: 0.25em;
+}
+
+.btn.btn-normal {
+    font-size: 1em!important;
+}
+
+.btn.btn-large {
+    font-size: 1.5em!important;
+}
+
+.btn.btn-xlarge {
+    font-size: 2em!important;
+}
+
+.btn:link,
+.btn:visited,
 #search-block-form button,
 .search-form button,
 button[type=submit] {
-    background-color: #01356b!important;
-    color: white!important;
     -webkit-transition: 0.2s all ease-in;
     transition: 0.2s all ease-in;
     font-family: "Mallory Bold"!important;
@@ -448,10 +499,10 @@ button[type=submit] {
     border: none!important;
 }
 
-.btn-peabody:hover,
-.btn-peabody:focus,
-.btn-peabody.focus,
-.open>.dropdown-toggle.btn-peabody,
+.btn:hover,
+.btn:focus,
+.btn.focus,
+.open>.dropdown-toggle.btn,
 #search-block-form button:focus,
 #search-block-form button:hover,
 .search-form button:focus,
@@ -465,13 +516,13 @@ button[type=submit]:focus {
     transition: 0.2s all ease-in!important;
     border-radius: 0px!important;
     cursor: pointer;
-    font-size: 1em;
+    /* font-size: 1em; */
     border: none!important;
     outline: none;
 }
 
-.btn-peabody:active,
-.btn-peabody.active,
+.btn:active,
+.btn.active,
 #search-block-form button:active,
 .search-form button:active,
 button[type=submit]:active {
@@ -481,9 +532,9 @@ button[type=submit]:active {
     outline: none;
 }
 
-.button-row {
-    width: 100%;
-    text-align: center;
+.btn-peabody,
+.btn-primary {
+    background-color: #01356b!important;
 }
 
 
@@ -1160,6 +1211,7 @@ details {
     border-left: 8px #01356b solid;
     padding-left: 1em;
     /* margin-left: 1em; */
+    margin: 0 1em;
 }
 
 
