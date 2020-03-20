@@ -22,21 +22,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class SnippetDisplayVariant extends VariantBase implements PageVariantInterface, ContainerFactoryPluginInterface {
 
   /**
-   * Snippet storage.
-   *
-   * @var \Drupal\Core\Config\Entity\ConfigEntityStorageInterface
-   */
-  protected $snippetStorage;
-
-
-  /**
-   * Snippet renderer.
-   *
-   * @var \Drupal\Core\Logger\LoggerChannelInterface
-   */
-  protected $logger;
-
-  /**
    * The render array representing the main content.
    *
    * @var array
@@ -49,6 +34,20 @@ class SnippetDisplayVariant extends VariantBase implements PageVariantInterface,
    * @var string|array
    */
   protected $title = '';
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * Snippet renderer.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
+  protected $logger;
 
   /**
    * The renderer service.
@@ -66,16 +65,16 @@ class SnippetDisplayVariant extends VariantBase implements PageVariantInterface,
    *   The plugin ID for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_manager
-   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Logger\LoggerChannelInterface $logger
    *   The logger channel.
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_manager, LoggerChannelInterface $logger, RendererInterface $renderer) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, LoggerChannelInterface $logger, RendererInterface $renderer) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->snippetStorage = $entity_manager->getStorage('snippet');
+    $this->entityTypeManager = $entity_type_manager;
     $this->logger = $logger;
     $this->renderer = $renderer;
   }
@@ -88,7 +87,7 @@ class SnippetDisplayVariant extends VariantBase implements PageVariantInterface,
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity.manager'),
+      $container->get('entity_type.manager'),
       $container->get('logger.channel.snippet_manager'),
       $container->get('renderer')
     );
@@ -117,11 +116,11 @@ class SnippetDisplayVariant extends VariantBase implements PageVariantInterface,
     $build = [];
 
     /** @var \Drupal\snippet_manager\SnippetInterface $snippet */
-    $snippet = $this->snippetStorage->load($this->getDerivativeId());
+    $snippet = $this->entityTypeManager->getStorage('snippet')->load($this->getDerivativeId());
     if ($snippet) {
 
       /** @var \Drupal\snippet_manager\SnippetViewBuilder $view_builder */
-      $view_builder = \Drupal::service('entity.manager')->getViewBuilder('snippet');
+      $view_builder = $this->entityTypeManager->getViewBuilder('snippet');
 
       $build['content'] = $view_builder->view($snippet);
 

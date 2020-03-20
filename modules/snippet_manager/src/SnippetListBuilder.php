@@ -85,7 +85,7 @@ class SnippetListBuilder extends ConfigEntityListBuilder {
       $display_variant['admin_label'] ?: $entity->label() : '';
     $row['display_variant']['data-display-variant'] = (int) $display_variant['status'];
 
-    $layout = $entity->get('status');
+    $layout = $entity->get('layout');
     $row['layout']['data'] = $layout['status'] ?
       $layout['label'] ?: $entity->label() : '';
     $row['layout']['data-layout'] = (int) $layout['status'];

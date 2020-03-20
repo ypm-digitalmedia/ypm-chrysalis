@@ -5,12 +5,12 @@
  * Primary module hooks for CodeMirror editor module.
  */
 
-use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\codemirror_editor\Element\CodeMirror;
 
 /**
  * Implements hook_help().
  */
-function codemirror_editor_help($route_name, RouteMatchInterface $route_match) {
+function codemirror_editor_help($route_name) {
   if ($route_name == 'help.page.codemirror_editor') {
     $output = '';
     $output .= '<h3>' . t('About') . '</h3>';
@@ -24,7 +24,7 @@ function codemirror_editor_help($route_name, RouteMatchInterface $route_match) {
  * Implements hook_library_info_build().
  */
 function codemirror_editor_library_info_build() {
-  $library_builder = \Drupal::service('codemirror_editor.library_builder');
+  $library_builder = Drupal::service('codemirror_editor.library_builder');
   return [
     'codemirror' => $library_builder->build(),
   ];
@@ -37,11 +37,11 @@ function codemirror_editor_js_settings_build(array &$settings) {
   if (isset($settings['codeMirrorEditor'])) {
     $buttons_path = drupal_get_path('module', 'codemirror_editor') . '/images/buttons.svg';
     $settings['codeMirrorEditor']['buttonsBaseUrl'] = file_url_transform_relative(file_create_url($buttons_path));
-    $config = \Drupal::config('codemirror_editor.settings');
+    $config = Drupal::config('codemirror_editor.settings');
     $settings['codeMirrorEditor']['theme'] = $config->get('theme');
   }
   if (isset($settings['codeMirrorFormatter'])) {
-    $config = \Drupal::config('codemirror_editor.settings');
+    $config = Drupal::config('codemirror_editor.settings');
     $settings['codeMirrorFormatter']['theme'] = $config->get('theme');
   }
 }
@@ -50,24 +50,7 @@ function codemirror_editor_js_settings_build(array &$settings) {
  * Implements hook_element_info_alter().
  */
 function codemirror_editor_element_info_alter(array &$info) {
-  $info['textarea']['#pre_render'][] = 'codemirror_editor_pre_render_textarea';
-}
-
-/**
- * Enables CodeMirror editor for a textarea.
- *
- * @param array $element
- *   An associative array containing the properties of the textarea.
- *
- * @return array
- *   The modified textarea element.
- */
-function codemirror_editor_pre_render_textarea(array $element) {
-  if (isset($element['#codemirror'])) {
-    $element['#attributes']['data-codemirror'] = json_encode($element['#codemirror']);
-    $element['#attached']['library'][] = 'codemirror_editor/editor';
-  }
-  return $element;
+  $info['textarea']['#pre_render'][] = [CodeMirror::class, 'preRenderCodeMirror'];
 }
 
 /**

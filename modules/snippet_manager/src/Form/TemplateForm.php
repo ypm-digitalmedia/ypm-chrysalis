@@ -160,7 +160,7 @@ class TemplateForm extends EntityForm {
         $row[] = '';
         $plugin_id = $this->entity->getVariable($variable_name)['plugin_id'];
         $row[] = $plugin_id . ' - ' . $this->t('missing');
-        drupal_set_message($this->t('The %plugin plugin does not exist.', ['%plugin' => $plugin_id]), 'warning');
+        $this->messenger()->addWarning($this->t('The %plugin plugin does not exist.', ['%plugin' => $plugin_id]));
       }
       $row[] = ['data' => $operation_data];
 
@@ -228,7 +228,8 @@ class TemplateForm extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     parent::save($form, $form_state);
-    drupal_set_message($this->t('Snippet %label has been updated.', ['%label' => $this->entity->label()]));
+    $message = $this->t('Snippet %label has been updated.', ['%label' => $this->entity->label()]);
+    $this->messenger()->addStatus($message);
   }
 
 }

@@ -23,10 +23,7 @@ class VariableEditForm extends VariableFormBase {
 
     $form = parent::form($form, $form_state);
 
-    $form['#title'] = $this->t(
-      'Edit variable %variable',
-      ['%variable' => $this->getVariableName()]
-    );
+    $form['#title'] = $this->t('Edit variable %variable', ['%variable' => $this->getVariableName()]);
 
     $form['#tree'] = TRUE;
 
@@ -82,7 +79,7 @@ class VariableEditForm extends VariableFormBase {
 
     $result = $this->entity->save();
 
-    drupal_set_message(t('The variable has been updated.'));
+    $this->messenger()->addStatus($this->t('The variable has been updated.'));
 
     $redirect_url = $this->entity->toUrl('template-edit-form');
     $form_state->setRedirectUrl($redirect_url);

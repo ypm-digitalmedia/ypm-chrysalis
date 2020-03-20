@@ -96,9 +96,7 @@ class Snippet extends CKEditorPluginBase implements CKEditorPluginConfigurableIn
     $options = [];
     /** @var \Drupal\snippet_manager\SnippetInterface $snippet */
     foreach (SnippetEntity::loadMultiple() as $snippet) {
-      if ($snippet->access('view')) {
-        $options[$snippet->id()] = $snippet->label();
-      }
+      $options[$snippet->id()] = $snippet->label();
     }
     return $options;
   }

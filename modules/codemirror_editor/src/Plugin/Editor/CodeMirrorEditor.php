@@ -34,8 +34,8 @@ class CodeMirrorEditor extends EditorBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, FormStateInterface $form_state, Editor $editor) {
-    return self::buildCodeMirrorSettingsForm($editor->getSettings());
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    return self::buildCodeMirrorSettingsForm($form_state->get('editor')->getSettings());
   }
 
   /**

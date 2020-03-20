@@ -49,6 +49,18 @@ use Drupal\snippet_manager\SnippetVariableCollection;
  *     "label" = "label",
  *     "status" = "status",
  *     "uuid" = "uuid",
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "page",
+ *     "block",
+ *     "display_variant",
+ *     "layout",
+ *     "template",
+ *     "css",
+ *     "js",
+ *     "variables",
  *   }
  * )
  *

@@ -20,7 +20,7 @@ class SnippetAccessControlHandler extends EntityAccessControlHandler {
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     /** @var \Drupal\snippet_manager\SnippetInterface $entity */
     if ($operation == 'view' && $entity->status()) {
-      return AccessResult::allowed();
+      return AccessResult::allowed()->addCacheableDependency($entity);
     }
     return parent::checkAccess($entity, $operation, $account);
   }

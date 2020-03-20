@@ -26,21 +26,42 @@
    * Creates editor buttons.
    */
   function createButtons(editor, options) {
+
     $('<div class="cme-buttons"/>')
       .prependTo(editor.$toolbar)
       .load(options.buttonsBaseUrl);
 
+    var buttonTranslations = {
+      'bold': Drupal.t('Bold'),
+      'italic': Drupal.t('Italic'),
+      'underline': Drupal.t('Underline'),
+      'strike-through': Drupal.t('Strike through'),
+      'list-numbered': Drupal.t('Numbered list'),
+      'list-bullet': Drupal.t('Bullet list'),
+      'link': Drupal.t('Link'),
+      'horizontal-rule': Drupal.t('Horizontal rule'),
+      'undo': Drupal.t('Undo'),
+      'redo': Drupal.t('Redo'),
+      'clear-formatting': Drupal.t('Clear formatting'),
+      'enlarge': Drupal.t('Enlarge'),
+      'shrink': Drupal.t('Shrink')
+    };
+
     options.buttons.forEach(function (button) {
-      // @TODO: Add title attribute.
-      $('<svg data-cme-button="' + button + '" class="cme-button"><use xlink:href="#icon-' + button + '"></use></svg>')
-        .appendTo(editor.$toolbar);
+      var markup = [
+        '<button data-cme-button="' + button + '" class="cme-button">',
+        '<svg focusable="false" aria-hidden="true"><use xlink:href="#icon-' + button + '"></use></svg>',
+        '<span class="visually-hidden">' + buttonTranslations[button] + '</span>',
+        '</button>'
+      ];
+      $(markup.join('')).appendTo(editor.$toolbar);
     });
     editor.$toolbar.find('[data-cme-button="shrink"]').hide();
 
     function setFullScreen(state) {
       editor.setOption('fullScreen', state);
-      editor.$toolbar.find('svg[data-cme-button="enlarge"]').toggle(!state);
-      editor.$toolbar.find('svg[data-cme-button="shrink"]').toggle(state);
+      editor.$toolbar.find('button[data-cme-button="enlarge"]').toggle(!state);
+      editor.$toolbar.find('button[data-cme-button="shrink"]').toggle(state);
     }
 
     var extraKeys = {
@@ -60,8 +81,21 @@
       doc.getSelection().split('\n').forEach(function (value) {
         list += '  <li>' + value + '</li>\n';
       });
-      list += '</' + type + '>\n';
-      doc.replaceSelection(list, doc.getCursor());
+      list += '</' + type + '>';
+      return list;
+    }
+
+    function replaceSelection(replacement, block) {
+      var cursorTo = doc.getCursor('to');
+      if (block && cursorTo.line === doc.lastLine()) {
+        replacement += "\n";
+      }
+      doc.replaceSelection(replacement, doc.getCursor());
+      var endsWithNewLine = replacement.charAt(replacement.length - 1) === "\n";
+      var cursorAfter = doc.getCursor();
+      var ch = endsWithNewLine ? 0 : cursorAfter.ch + replacement.length;
+      var newLines = replacement.split("\n").length - 1;
+      doc.setCursor({line: cursorAfter.line + newLines, ch: ch});
     }
 
     function buttonClickHandler(event) {
@@ -69,35 +103,46 @@
       switch (button) {
 
         case 'bold':
-          doc.replaceSelection('<strong>' + doc.getSelection() + '</strong>', doc.getCursor());
+          replaceSelection('<strong>' + doc.getSelection() + '</strong>');
           break;
 
         case 'italic':
-          doc.replaceSelection('<em>' + doc.getSelection() + '</em>', doc.getCursor());
+          replaceSelection('<em>' + doc.getSelection() + '</em>');
           break;
 
         case 'underline':
-          doc.replaceSelection('<u>' + doc.getSelection() + '</u>', doc.getCursor());
+          replaceSelection('<u>' + doc.getSelection() + '</u>');
           break;
 
         case 'strike-through':
-          doc.replaceSelection('<s>' + doc.getSelection() + '</s>', doc.getCursor());
+          replaceSelection('<s>' + doc.getSelection() + '</s>');
           break;
 
         case 'list-numbered':
-          createHtmlList('ol');
+          replaceSelection(createHtmlList('ol'), true);
           break;
 
         case 'list-bullet':
-          createHtmlList('ul');
+          replaceSelection(createHtmlList('ul'), true);
           break;
 
         case 'link':
-          doc.replaceSelection('<a href="">' + doc.getSelection() + '</a>', doc.getCursor());
+          replaceSelection('<a href="">' + doc.getSelection() + '</a>');
           break;
 
         case 'horizontal-rule':
-          doc.replaceSelection('<hr/>', doc.getCursor());
+          var cursorFrom = doc.getCursor('from');
+          var cursorTo = doc.getCursor('to');
+          var line = doc.getLine(cursorFrom.line);
+
+          var replacement = '<hr/>';
+          if (cursorFrom.ch > 0) {
+            replacement = "\n" + '<hr/>';
+          }
+          if (cursorTo.ch < line.length) {
+            replacement += "\n";
+          }
+          replaceSelection(replacement, true);
           break;
 
         case 'undo':
@@ -119,8 +164,9 @@
         case 'shrink':
           setFullScreen(false);
           break;
-
       }
+      editor.focus();
+      return false;
     }
     editor.$toolbar.click(buttonClickHandler);
   }

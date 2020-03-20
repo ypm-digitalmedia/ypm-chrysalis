@@ -2,7 +2,6 @@
 
 namespace Drupal\snippet_manager\Plugin\SnippetVariable;
 
-use Drupal\Component\Plugin\Exception\ContextException;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -180,65 +179,34 @@ class Block extends SnippetVariableBase implements ContainerFactoryPluginInterfa
    * {@inheritdoc}
    */
   public function build() {
+
+    $build = [];
+
     $block_plugin = $this->getBlockPlugin();
 
-    $build['#cache'] = [
-      'tags' => $block_plugin->getCacheTags(),
-      'contexts' => $block_plugin->getCacheContexts(),
-      'max-age' => $block_plugin->getCacheMaxAge(),
-    ];
+    // Inject runtime contexts.
+    if ($block_plugin instanceof ContextAwarePluginInterface) {
+      $contexts = $this->contextRepository->getRuntimeContexts($block_plugin->getContextMapping());
+      $this->contextHandler()->applyContextMapping($block_plugin, $contexts);
+    }
 
-    try {
-      if ($block_plugin instanceof ContextAwarePluginInterface) {
-        $contexts = $this->contextRepository->getRuntimeContexts(array_values($block_plugin->getContextMapping()));
-        $this->contextHandler()->applyContextMapping($block_plugin, $contexts);
+    $access = $block_plugin->access($this->account, TRUE);
+    if ($access->isAllowed()) {
+      $build['content'] = $block_plugin->build();
+      if (!Element::isEmpty($build['content'])) {
+        $build += [
+          '#theme' => 'block',
+          '#attributes' => [],
+          '#contextual_links' => [],
+          '#configuration' => $block_plugin->getConfiguration(),
+          '#plugin_id' => $block_plugin->getPluginId(),
+          '#base_plugin_id' => $block_plugin->getBaseId(),
+          '#derivative_plugin_id' => $block_plugin->getDerivativeId(),
+        ];
       }
     }
-    catch (ContextException $exception) {
-      return $build;
-    }
 
-    if (!$block_plugin->access($this->account)) {
-      return $build;
-    }
-
-    $build += [
-      '#theme' => 'block',
-      '#attributes' => [],
-      '#configuration' => $block_plugin->getConfiguration(),
-      '#plugin_id' => $block_plugin->getPluginId(),
-      '#base_plugin_id' => $block_plugin->getBaseId(),
-      '#derivative_plugin_id' => $block_plugin->getDerivativeId(),
-      '#block_plugin' => $block_plugin,
-      '#pre_render' => [[$this, 'blockPreRender']],
-    ];
-
-    return $build;
-  }
-
-  /**
-   * Pre-render callback for building a block.
-   */
-  public function blockPreRender($build) {
-    $content = $build['#block_plugin']->build();
-    unset($build['#block_plugin']);
-
-    if ($content && !Element::isEmpty($content)) {
-      $build['content'] = $content;
-    }
-    else {
-      // Preserve cache metadata for empty blocks.
-      $build = [
-        '#markup' => '',
-        '#cache' => $build['#cache'],
-      ];
-    }
-
-    if (!empty($content)) {
-      CacheableMetadata::createFromRenderArray($build)
-        ->merge(CacheableMetadata::createFromRenderArray($content))
-        ->applyTo($build);
-    }
+    CacheableMetadata::createFromObject($access)->applyTo($build);
     return $build;
   }
 

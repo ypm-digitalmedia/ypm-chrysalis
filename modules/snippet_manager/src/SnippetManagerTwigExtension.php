@@ -3,11 +3,14 @@
 namespace Drupal\snippet_manager;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use RuntimeException;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 
 /**
  * Twig extension.
  */
-class SnippetManagerTwigExtension extends \Twig_Extension {
+class SnippetManagerTwigExtension extends AbstractExtension {
 
   /**
    * The entity type manager.
@@ -29,20 +32,16 @@ class SnippetManagerTwigExtension extends \Twig_Extension {
   /**
    * {@inheritdoc}
    */
-  public function getName() {
-    return 'snippet_manager';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getFunctions() {
     return [
-      new \Twig_SimpleFunction('snippet', function ($snippet_id, array $context = []) {
+      new TwigFunction('snippet', function ($snippet_id, array $context = []) {
         $snippet = $this->entityTypeManager->getStorage('snippet')->load($snippet_id);
-        if ($snippet) {
-          return $this->entityTypeManager->getViewBuilder('snippet')->view($snippet, 'full', NULL, $context);
+        if (!$snippet || !$snippet->access('view')) {
+          throw new RuntimeException(sprintf('Could not load snippet %s.', $snippet_id));
         }
+        /** @var \Drupal\snippet_manager\SnippetViewBuilder $view_builder */
+        $view_builder = $this->entityTypeManager->getViewBuilder('snippet');
+        return $view_builder->view($snippet, 'full', NULL, $context);
       }),
     ];
   }

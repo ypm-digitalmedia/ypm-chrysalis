@@ -111,7 +111,7 @@ class VariableAddForm extends VariableFormBase {
 
     $result = $this->entity->save();
 
-    drupal_set_message(t('The variable has been created.'));
+    $this->messenger()->addStatus($this->t('The variable has been created.'));
 
     $redirect_url = Url::fromRoute(
       'snippet_manager.variable_edit_form',

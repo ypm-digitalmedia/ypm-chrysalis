@@ -10,6 +10,11 @@ namespace Drupal\Tests\codemirror_editor\FunctionalJavascript;
 class EditorTest extends TestBase {
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'classy';
+
+  /**
    * Test callback.
    */
   public function testEditor() {
@@ -46,7 +51,18 @@ class EditorTest extends TestBase {
     $this->editorClickButton('list-bullet');
     $this->editorClickButton('link');
     $this->editorClickButton('horizontal-rule');
-    $this->assertEditorValue("<hr/><a href=\"\"></a><ul>\n  <li></li>\n</ul>\n<ol>\n  <li></li>\n</ol>\n<s></s><u></u><em></em><strong></strong>");
+    $expected = [
+      '<strong></strong><em></em><u></u><s></s><ol>',
+      '  <li></li>',
+      '</ol>',
+      '<ul>',
+      '  <li></li>',
+      '</ul>',
+      '<a href=""></a>',
+      '<hr/>',
+      '',
+    ];
+    $this->assertEditorValue(implode("\n", $expected));
 
     // -- Make sure the editors do not interfere with each other.
     $this->activeEditor = 2;

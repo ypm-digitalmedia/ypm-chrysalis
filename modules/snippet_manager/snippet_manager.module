@@ -12,11 +12,7 @@ use Drupal\Core\Render\Element;
  * Implements hook_library_info_build().
  */
 function snippet_manager_library_info_build() {
-
-  // Snippet libraries.
-  $libraries = \Drupal::service('snippet_manager.snippet_library_builder')->build();
-
-  return $libraries;
+  return \Drupal::service('snippet_manager.snippet_library_builder')->build();
 }
 
 /**
@@ -33,7 +29,7 @@ function snippet_manager_theme() {
 /**
  * Prepares variables for snippet layout template.
  *
- * @param array &$variables
+ * @param array $variables
  *   An associative array containing:
  *   - content: An associative array containing the properties of the element.
  */

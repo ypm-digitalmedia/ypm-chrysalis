@@ -16,10 +16,16 @@
   margin-right: 5px;
   padding: 5px;
   border: outset 1px #ccc;
-  width: 14px;
-  height: 14px;
+  width: 26px;
+  height: 26px;
   background: linear-gradient(to bottom, #fff, #eee);
 }
+
+.cme-button svg {
+  width: 14px;
+  height: 14px;
+}
+
 
 .cme-button:hover {
   background: #fff;

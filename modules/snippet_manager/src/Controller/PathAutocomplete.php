@@ -52,25 +52,27 @@ class PathAutocomplete implements ContainerInjectionInterface {
     $matches = [];
     $typed_path = $request->query->get('q');
 
-    foreach ($this->routeProvider->getAllRoutes() as $route_name => $route) {
-      $path = $route->getPath();
-      if (stripos($path, $typed_path) !== FALSE && in_array('GET', $route->getMethods())) {
-        // Exclude special routes like <current>.
-        if ($route_name[0] != '<') {
-          // Temporary key results by path to avoid duplicates.
-          $matches[$path] = [
-            'value' => $path,
-            'label' => $path,
-          ];
+    if (is_string($typed_path)) {
+      foreach ($this->routeProvider->getAllRoutes() as $route_name => $route) {
+        $path = $route->getPath();
+        if (stripos($path, $typed_path) !== FALSE && in_array('GET', $route->getMethods())) {
+          // Exclude special routes like <current>.
+          if ($route_name[0] != '<') {
+            // Temporary key results by path to avoid duplicates.
+            $matches[$path] = [
+              'value' => $path,
+              'label' => $path,
+            ];
+          }
         }
       }
-    }
 
-    $matches = array_values($matches);
-    usort($matches, function ($a, $b) {
-      return strcmp($a['label'], $b['label']);
-    });
-    $matches = array_slice($matches, 0, 15);
+      $matches = array_values($matches);
+      usort($matches, function ($a, $b) {
+        return strcmp($a['label'], $b['label']);
+      });
+      $matches = array_slice($matches, 0, 15);
+    }
 
     return new JsonResponse($matches);
   }

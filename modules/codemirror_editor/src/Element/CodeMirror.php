@@ -46,8 +46,10 @@ class CodeMirror extends Textarea {
    *   The modified element.
    */
   public static function preRenderCodeMirror(array $element) {
-    $element['#attributes']['data-codemirror'] = json_encode($element['#codemirror']);
-    $element['#attached']['library'][] = 'codemirror_editor/editor';
+    if (isset($element['#codemirror'])) {
+      $element['#attributes']['data-codemirror'] = json_encode($element['#codemirror']);
+      $element['#attached']['library'][] = 'codemirror_editor/editor';
+    }
     return $element;
   }
 

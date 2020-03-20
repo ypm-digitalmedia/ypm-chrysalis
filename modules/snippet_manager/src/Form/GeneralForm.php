@@ -375,7 +375,7 @@ class GeneralForm extends EntityForm {
     $message = $result == SAVED_NEW
       ? $this->t('Snippet %label has been created.', $message_arguments)
       : $this->t('Snippet %label has been updated.', $message_arguments);
-    drupal_set_message($message);
+    $this->messenger()->addStatus($message);
 
     $form_state->setRedirectUrl($this->entity->toUrl('edit-form'));
   }

@@ -2,13 +2,15 @@
 
 namespace Drupal\snippet_manager\Plugin\SnippetVariable;
 
-use Drupal\Core\Cache\Cache;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\snippet_manager\SnippetVariableBase;
@@ -25,6 +27,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class Entity extends SnippetVariableBase implements ContainerFactoryPluginInterface {
+
+  use MessengerTrait;
 
   /**
    * Entity type manager.
@@ -74,7 +78,7 @@ class Entity extends SnippetVariableBase implements ContainerFactoryPluginInterf
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity manager service.
+   *   The entity type manager.
    * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository
    *   The entity display repository.
    * @param \Drupal\Core\Logger\LoggerChannelInterface $logger
@@ -117,10 +121,8 @@ class Entity extends SnippetVariableBase implements ContainerFactoryPluginInterf
       $entity = $storage->load($this->configuration['entity_id']);
 
       if (!$entity) {
-        drupal_set_message(
-          $this->t('Could not load entity: #%entity', ['%entity' => $this->configuration['entity_id']]),
-          'error'
-        );
+        $message = $this->t('Could not load entity: #%entity', ['%entity' => $this->configuration['entity_id']]);
+        $this->messenger()->addError($message);
       }
     }
 
@@ -174,11 +176,9 @@ class Entity extends SnippetVariableBase implements ContainerFactoryPluginInterf
    *   Loaded entity or null if the entity was not found.
    */
   protected function loadEntity() {
-
     if ($this->configuration['entity_id']) {
       $entity = $this->entityTypeManager->getStorage($this->entityType)
         ->load($this->configuration['entity_id']);
-
       if (!$entity) {
         $this->logger->error(
           'Could not load @entity_type: #@entity_id.',
@@ -188,29 +188,41 @@ class Entity extends SnippetVariableBase implements ContainerFactoryPluginInterf
           ]
         );
       }
-
     }
     else {
       $entity = $this->routeMatch->getParameter($this->entityType);
     }
-
-    if (is_object($entity) && ($this->configuration['bypass_access'] || $entity->access('view'))) {
+    if (is_object($entity)) {
       return $entity;
     }
-
   }
 
   /**
    * {@inheritdoc}
    */
   public function build() {
+    $build = [];
 
-    if ($entity = $this->loadEntity()) {
-      if (!$this->configuration['entity_id']) {
-        $entity->addCacheContexts(['url']);
-      }
+    $cache_metadata = new CacheableMetadata();
 
-      $build = [];
+    if (!$this->configuration['entity_id']) {
+      $cache_metadata->addCacheContexts(['url']);
+    }
+
+    if (!$entity = $this->loadEntity()) {
+      $cache_metadata->applyTo($build);
+      return $build;
+    }
+
+    $access = $this->configuration['bypass_access'] ?
+      AccessResult::allowed() : $entity->access('view', NULL, TRUE);
+
+    $cache_metadata
+      ->merge(CacheableMetadata::createFromObject($entity))
+      ->merge(CacheableMetadata::createFromObject($access));
+
+    if ($access->isAllowed()) {
+
       // We do not configure #cache for this mode assuming it will "bubble" when
       // entity object is rendered.
       if ($this->configuration['render_mode'] == 'entity') {
@@ -222,43 +234,23 @@ class Entity extends SnippetVariableBase implements ContainerFactoryPluginInterf
         $display_id = $entity->getEntityTypeId() . '.' . $entity->bundle() . '.' . $this->configuration['view_mode'];
         /* @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display_mode */
         $display_mode = $this->entityTypeManager->getStorage('entity_view_display')->load($display_id);
-        $entity_cache = [
-          'tags' => $entity->getCacheTags(),
-          'contexts' => $entity->getCacheContexts(),
-          'max-age' => $entity->getCacheMaxAge(),
-        ];
 
         foreach ($display_mode->get('fieldDefinitions') as $field_name => $field_definition) {
           $build[$field_name] = $entity->{$field_name}->view($this->configuration['view_mode']);
-
           // The fields may be rendered individually so the cache should be
-          // configured for each one.
-          if (isset($build[$field_name]['#cache'])) {
-            $field_cache = $build[$field_name]['#cache'];
-            $build[$field_name]['#cache'] = [
-              'tags' => Cache::mergeTags($field_cache['tags'], $entity_cache['tags']),
-              'contexts' => Cache::mergeContexts($field_cache['contexts'], $entity_cache['contexts']),
-              'max-age' => Cache::mergeMaxAges($field_cache['max-age'], $entity_cache['max-age']),
-            ];
-          }
-
+          // applied individually.
+          $cache_metadata
+            ->merge(CacheableMetadata::createFromRenderArray($build[$field_name]))
+            ->applyTo($build[$field_name]);
         }
-
       }
-
-      return $build;
     }
 
-    // Empty value also needs cache context.
-    else {
-      return [
-        '#cache' => [
-          'context' => 'url',
-          'max-age' => 0,
-        ],
-      ];
-    }
+    $cache_metadata
+      ->merge(CacheableMetadata::createFromRenderArray($build))
+      ->applyTo($build);
 
+    return $build;
   }
 
   /**
@@ -268,7 +260,7 @@ class Entity extends SnippetVariableBase implements ContainerFactoryPluginInterf
     $links = parent::getOperations();
     $entity = $this->loadEntity();
     if ($entity && $entity->hasLinkTemplate('edit-form')) {
-      $label = $entity->getEntityType()->getLowercaseLabel();
+      $label = $entity->getEntityType()->getSingularLabel();
       $links['edit_entity'] = [
         'title' => $this->t('Edit @label', ['@label' => $label]),
         'url' => $entity->toUrl('edit-form'),

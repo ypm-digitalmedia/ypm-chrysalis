@@ -2,29 +2,35 @@ services:
   plugin.manager.snippet_variable:
     class: Drupal\snippet_manager\SnippetVariablePluginManager
     parent: default_plugin_manager
+
   logger.channel.snippet_manager:
     parent: logger.channel_base
     arguments: ['snippet_manager']
+
   snippet_manager.display_variant_subscriber:
       class: Drupal\snippet_manager\EventSubscriber\DisplayVariantSubscriber
       arguments: ['@request_stack', '@plugin.manager.display_variant']
       tags:
-        - { name: event_subscriber }
+        - {name: event_subscriber}
+
   twig.loader.snippet:
     class: Drupal\snippet_manager\SnippetTemplateLoader
-    arguments: ['@entity_type.manager', '@logger.channel.snippet_manager']
+    arguments: ['@entity_type.manager']
     tags:
-    # This service should be loaded before @twig.loader.string.
-      - { name: twig.loader, priority: -150 }
+      # It needs to be loaded before @twig.loader.string.
+      - {name: twig.loader, priority: -150}
+
   theme.negotiator.snippet_manager:
     class: Drupal\snippet_manager\Theme\Negotiator
     tags:
-      - { name: theme_negotiator, priority: 0 }
+      - {name: theme_negotiator, priority: 0}
+
   snippet_manager.route_subscriber:
     class: Drupal\snippet_manager\EventSubscriber\RouteSubscriber
     arguments: ['@entity_type.manager']
     tags:
-      - { name: event_subscriber }
+      - {name: event_subscriber}
+
   snippet_manager.snippet_library_builder:
     class: Drupal\snippet_manager\SnippetLibraryBuilder
     arguments: ['@entity_type.manager', '@logger.channel.snippet_manager', '@file_system', '@library.discovery']
@@ -33,4 +39,4 @@ services:
     class: Drupal\snippet_manager\SnippetManagerTwigExtension
     arguments: ['@entity_type.manager']
     tags:
-      - { name: twig.extension }
+      - {name: twig.extension}

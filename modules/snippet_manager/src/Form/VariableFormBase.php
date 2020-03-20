@@ -50,7 +50,8 @@ abstract class VariableFormBase extends EntityForm {
     if (!$this->plugin) {
       $this->plugin = $this->entity->getPluginCollection()->createInstance($this->getVariableName());
       if (!$this->plugin) {
-        drupal_set_message($this->t('The %plugin plugin does not exist.', ['%plugin' => $this->variable['plugin_id']]), 'warning');
+        $message = $this->t('The %plugin plugin does not exist.', ['%plugin' => $this->variable['plugin_id']]);
+        $this->messenger()->addWarning($message);
       }
     }
     return $this->plugin;

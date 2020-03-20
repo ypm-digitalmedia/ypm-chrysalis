@@ -136,15 +136,12 @@ class SnippetViewBuilder implements EntityViewBuilderInterface, EntityHandlerInt
 
     $default_context = static::getDefaultContext();
 
-    // @todo Remove this condition once we drop support for Drupal 8.4.
-    if (method_exists($this->moduleHandler, 'invokeAllDeprecated')) {
-      $deprecation_message = 'hook_snippet_context has been deprecated';
-      // The context is an array of processed Twig variables.
-      $default_context += $this->moduleHandler->invokeAllDeprecated($deprecation_message, 'snippet_context', [$snippet]);
-    }
-    else {
-      $default_context += $this->moduleHandler->invokeAll('snippet_context', [$snippet]);
-    }
+    // The context is an array of processed Twig variables.
+    $default_context += $this->moduleHandler->invokeAllDeprecated(
+      'hook_snippet_context has been deprecated',
+      'snippet_context',
+      [$snippet]
+    );
 
     foreach ($snippet->getPluginCollection() as $variable_name => $plugin) {
       $default_context[$variable_name] = $plugin ? $plugin->build() : '';
@@ -153,14 +150,12 @@ class SnippetViewBuilder implements EntityViewBuilderInterface, EntityHandlerInt
     // Context passed to the view builder should take precedence.
     $context += $default_context;
 
-    // @todo Remove this condition once we drop support for Drupal 8.4.
-    if (method_exists($this->moduleHandler, 'alterDeprecated')) {
-      $deprecation_message = 'hook_snippet_context_alter has been deprecated';
-      $this->moduleHandler->alterDeprecated($deprecation_message, 'snippet_context', $context, $snippet);
-    }
-    else {
-      $this->moduleHandler->alter('snippet_context', $context, $snippet);
-    }
+    $this->moduleHandler->alterDeprecated(
+      'hook_snippet_context_alter has been deprecated',
+      'snippet_context',
+      $context,
+      $snippet
+    );
 
     $template = $snippet->get('template');
 

@@ -7,7 +7,7 @@ namespace Drupal\codemirror_editor;
  */
 interface LibraryBuilderInterface {
 
-  const CODEMIRROR_VERSION = '5.48.2';
+  const CODEMIRROR_VERSION = '5.51.0';
 
   const CDN_URL = 'https://cdn.jsdelivr.net/npm/codemirror@{version}';
 

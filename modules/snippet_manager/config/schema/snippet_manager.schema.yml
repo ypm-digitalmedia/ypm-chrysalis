@@ -131,20 +131,11 @@ snippet_manager.snippet.*:
             type: snippet_manager_variable_settings.[%parent.plugin_id]
             label: Plugin configuration
 
-# Drupal core does not provide schema for this plugin.
-# @see https://www.drupal.org/node/2787529
-condition.plugin.current_theme:
-  type: condition.plugin
-  mapping:
-    theme:
-      type: string
-      label: Theme
-
 snippet_manager_variable_settings.condition:*:
   type: mapping
   mapping:
     condition:
-      type: condition.plugin.[id]
+      type: ignore
 
 snippet_manager_variable_settings.entity:*:
   type: mapping

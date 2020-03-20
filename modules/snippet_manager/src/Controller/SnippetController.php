@@ -27,7 +27,7 @@ class SnippetController extends ControllerBase {
     $message = $op == 'enable'
       ? $this->t('Snippet %name has been enabled.', $args)
       : $this->t('Snippet %name has been disabled.', $args);
-    drupal_set_message($message);
+    $this->messenger()->addStatus($message);
     return $this->redirect('entity.snippet.collection');
   }
 

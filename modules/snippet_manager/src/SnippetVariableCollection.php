@@ -52,8 +52,8 @@ class SnippetVariableCollection implements \IteratorAggregate {
    * @param string $name
    *   A name of the variable.
    *
-   * @return \Drupal\snippet_manager\SnippetVariableInterface
-   *   A fully configured snippet variable plugin instance.
+   * @return \Drupal\snippet_manager\SnippetVariableInterface|null
+   *   A fully configured snippet variable or null if plugin was not found.
    */
   public function createInstance($name) {
     $variable = $this->snippet->getVariable($name);

@@ -75,7 +75,7 @@ function link_field_autocomplete_filter_form_field_config_edit_form_alter(&$form
 /**
  * Implements hook_field_widget_form_alter().
  */
-function link_field_autocomplete_filter_field_widget_form_alter(&$element, \Drupal\Core\Form\FormStateInterface $form_state, $context) {
+function link_field_autocomplete_filter_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
   $widget_type = $context['widget']->getPluginId();
   if ($widget_type === 'link_default' || $widget_type === 'link_attributes' || $widget_type === 'link_target_field_widget') {
     $fieldDefinitions = $context['items']->getFieldDefinition();
@@ -135,6 +135,7 @@ function _link_field_autocomplete_filter_validate_widget($element, FormStateInte
  * Return the list of all content types as options.
  *
  * @return array
+ *   An options array.
  */
 function _link_field_autocomplete_content_types_options($label = TRUE) {
   $options = [];

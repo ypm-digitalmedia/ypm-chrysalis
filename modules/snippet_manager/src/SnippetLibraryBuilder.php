@@ -4,8 +4,10 @@ namespace Drupal\snippet_manager;
 
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\File\Exception\FileException;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\Core\Asset\LibraryDiscoveryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -16,6 +18,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 class SnippetLibraryBuilder {
 
   use StringTranslationTrait;
+  use MessengerTrait;
 
   /**
    * The entity_type.manager service.
@@ -107,7 +110,15 @@ class SnippetLibraryBuilder {
       $original_data = $original_snippet ? $original_snippet->get($type) : NULL;
       if (!$data['status']) {
         // Check if the file exists to avoid unwanted log notices.
-        file_exists($file_path) && file_unmanaged_delete($file_path);
+        if (file_exists($file_path)) {
+          try {
+            $this->fileSystem->delete($file_path);
+          }
+          catch (FileException $exception) {
+            $this->messenger()->addError($exception->getMessage());
+            $this->logger->error($exception->getMessage());
+          }
+        }
       }
       elseif (!$original_snippet || $data != $original_data) {
         $this->writeData($file_path, $data['value']);
@@ -132,14 +143,20 @@ class SnippetLibraryBuilder {
 
     $directory = $this->fileSystem->dirname($file_path);
 
-    if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
-      if (file_unmanaged_save_data($data, $file_path, FILE_EXISTS_REPLACE)) {
-        return TRUE;
+    if ($this->fileSystem->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY)) {
+      try {
+        if ($this->fileSystem->saveData($data, $file_path, FileSystemInterface::EXISTS_REPLACE)) {
+          return TRUE;
+        }
+      }
+      catch (FileException $exception) {
+        $this->messenger()->addError($exception->getMessage());
+        $this->logger->error($exception->getMessage());
       }
     }
 
     $message = $this->t('Could not create file %file', ['%file' => $file_path]);
-    drupal_set_message($message, 'error');
+    $this->messenger()->addError($message);
     $this->logger->error($message);
 
     return FALSE;

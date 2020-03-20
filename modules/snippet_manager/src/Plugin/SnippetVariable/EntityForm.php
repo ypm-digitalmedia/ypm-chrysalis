@@ -2,6 +2,7 @@
 
 namespace Drupal\snippet_manager\Plugin\SnippetVariable;
 
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Entity\EntityFormBuilderInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -63,7 +64,7 @@ class EntityForm extends SnippetVariableBase implements ContainerFactoryPluginIn
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity manager service.
+   *   The entity type manager service.
    * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository
    *   The entity display repository.
    * @param \Drupal\Core\Entity\EntityFormBuilderInterface $entity_form_builder
@@ -155,11 +156,22 @@ class EntityForm extends SnippetVariableBase implements ContainerFactoryPluginIn
       $values[$bundle_key] = $this->configuration['bundle'];
     }
 
+    $build = [];
+
     $entity = $entity_storage->create($values);
-    if (TRUE || $entity->access('create')) {
-      return $this->entityFormBuilder
+
+    $access = $entity->access('create', NULL, TRUE);
+    if ($access->isAllowed()) {
+      $build = $this->entityFormBuilder
         ->getForm($entity, $this->configuration['form_mode']);
     }
+
+    CacheableMetadata::createFromRenderArray($build)
+      ->merge(CacheableMetadata::createFromObject($entity))
+      ->merge(CacheableMetadata::createFromObject($access))
+      ->applyTo($build);
+
+    return $build;
   }
 
   /**

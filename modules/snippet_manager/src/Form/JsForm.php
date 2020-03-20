@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class JsForm extends EntityForm {
 
   /**
-   * The key/value Store to use for state.
+   * The key/value store to use for state.
    *
    * @var \Drupal\Core\State\StateInterface
    */
@@ -132,7 +132,8 @@ class JsForm extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     parent::save($form, $form_state);
-    drupal_set_message($this->t('Snippet %label has been updated.', ['%label' => $this->entity->label()]));
+    $message = $this->t('Snippet %label has been updated.', ['%label' => $this->entity->label()]);
+    $this->messenger()->addStatus($message);
   }
 
 }

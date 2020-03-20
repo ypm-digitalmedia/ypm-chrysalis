@@ -36,7 +36,7 @@ class Snippet extends FilterBase {
   public static function renderSnippet(array $matches) {
     $entity_type_manager = \Drupal::entityTypeManager();
     $snippet = $entity_type_manager->getStorage('snippet')->load($matches[1]);
-    if ($snippet && $snippet->access('view')) {
+    if ($snippet) {
       $build = $entity_type_manager->getViewBuilder('snippet')->view($snippet);
       return \Drupal::service('renderer')->render($build);
     }
