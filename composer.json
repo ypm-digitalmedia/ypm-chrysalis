@@ -11,7 +11,8 @@
         "drupal/address": "~1.0",
         "drupal/commerce": "^2.16",
         "dompdf/dompdf": "0.8.0",
-        "drupal/bigcommerce": "^1.1"
+        "drupal/bigcommerce": "^1.1",
+        "drush/drush": "^10.2"
     },
     "replace": {
 
@@ -32,14 +33,6 @@
         ],
         "drupal-libraries": {
             "datetimepicker": "https://github.com/xdan/datetimepicker/archive/2.5.20.zip"
-        },
-        "merge-plugin": {
-            "include": [
-                "core/composer.json"
-            ],
-            "recurse": true,
-            "replace": false,
-            "merge-extra": false
         },
         "installer-paths": {
             "core": ["type:drupal-core"],

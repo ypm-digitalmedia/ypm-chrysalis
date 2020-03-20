@@ -7,6 +7,15 @@
 # Because .gitignore can be specific to your site, this file has a different
 # name; updating Drupal core will not override your custom .gitignore file.
 
+
+# Avoid accidental modification of pantheon.upstream.yml in sites
+# created from this upstream
+pantheon.upstream.yml
+
+# Pantheon commits a settings.php for environment-specific settings.
+# Place local settings in settings.local.php
+sites/*/settings.local.php
+
 # Ignore core when managing all of a project's dependencies with Composer
 # including Drupal core.
 # core
@@ -24,6 +33,11 @@ sites/*/services*.yml
 # Ignore paths that contain user-generated content.
 sites/*/files
 sites/*/private
+files/*
+
+# ** Only works in OSs that support newer versions of fnmatch (Bash 4+)
+/sites/default/**/files
+/sites/default/**/private
 
 # Ignore SimpleTest multi-site environment.
 sites/simpletest
@@ -43,3 +57,40 @@ sites/simpletest
 
 # Ignore PHP stuff
 phpinfo.php
+
+# Packages #
+############
+*.7z
+*.dmg
+*.gz
+*.bz2
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.tgz
+
+# Logs and databases #
+######################
+*.log
+*.sql
+
+# OS generated files #
+######################
+.DS_Store*
+ehthumbs.db
+
+Thumbs.db
+._*
+
+# Vim generated files #
+######################
+*.un~
+
+# SASS #
+##########
+.sass-cache
+
+# Things in the core directory that Drupal 8 commits in the repository.
+!core/**/*.gz
