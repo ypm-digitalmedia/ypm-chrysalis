@@ -10,7 +10,7 @@
         "drupal/pathauto": "^1.6@beta",
         "drupal/address": "~1.0",
         "drupal/commerce": "^2.16",
-        "dompdf/dompdf": "0.8.0",
+        "dompdf/dompdf": "2.0.0",
         "drupal/bigcommerce": "^1.1",
         "drush/drush": "^10.2"
     },
